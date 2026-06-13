@@ -8,33 +8,33 @@
 :root {
   color-scheme: light;
   --font-ui: "Avenir Next", "Nunito", "Trebuchet MS", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --bg-cream: #fbfbfb;
-  --bg-cream-2: #f4f6ff;
-  --bg-peach: #e6ebff;
-  --bg-blue: #f4f6ff;
-  --bg-yellow: #e6ebff;
-  --bg-green: #f4f6ff;
-  --surface: rgba(255, 255, 255, 0.62);
-  --surface-soft: rgba(255, 255, 255, 0.62);
-  --surface-matte: rgba(255, 255, 255, 0.78);
-  --ink: #111111;
-  --ink-strong: #111111;
-  --muted: rgba(0, 0, 0, 0.50);
-  --muted-2: rgba(0, 0, 0, 0.50);
-  --line: rgba(19, 66, 255, 0.16);
-  --line-strong: rgba(19, 66, 255, 0.28);
-  --coral: oklch(50.58% .2886 264.84);
-  --sky: oklch(50.58% .2886 264.84);
-  --yellow: oklch(50.58% .2886 264.84);
-  --green: oklch(50.58% .2886 264.84);
-  --pink: #e6ebff;
-  --button-shadow: 0 4px 0 rgba(19, 66, 255, 0.55), 0 10px 18px rgba(19, 66, 255, 0.10);
-  --card-shadow: 0 16px 30px rgba(19, 66, 255, 0.12);
-  --card-shadow-soft: 0 8px 18px rgba(19, 66, 255, 0.08);
+
+  /* ---- Themeable tokens (defaults set here, overridden live by the theme picker) ---- */
+  /* Defaults written as rgb()/short forms on purpose so they survive the build-time refactor. */
+  --page-1: rgb(251, 251, 251);   /* page base            */
+  --page-2: rgb(244, 246, 255);   /* page mid (tinted)    */
+  --white:  rgb(255, 255, 255);   /* card / surface base  */
+  --ink: #111111;                 /* primary text         */
+  --ink-strong: #111111;          /* headings             */
+  --muted: rgba(0, 0, 0, 0.5);    /* secondary text       */
+
+  --accent-rgb: 19, 66, 255;      /* accent as r,g,b      */
+  --accent-dark: 10, 40, 180;     /* shadow / pressed     */
+  --accent: rgb(19, 66, 255);     /* solid accent         */
+  --accent-light: rgb(77, 108, 255); /* gradient highlight */
+  --tint-1: rgb(230, 235, 255);   /* chips / fills        */
+  --tint-2: rgb(244, 246, 255);   /* lightest surface     */
+  --tint-3: rgb(232, 236, 255);   /* button gradient foot */
+
+  --bg-cream: var(--page-1);
+
+  --button-shadow: 0 4px 0 rgba(var(--accent-rgb), 0.55), 0 10px 18px rgba(var(--accent-rgb), 0.10);
+  --card-shadow: 0 16px 30px rgba(var(--accent-rgb), 0.12);
+  --card-shadow-soft: 0 8px 18px rgba(var(--accent-rgb), 0.08);
   --radius-sm: 14px;
   --radius-md: 22px;
   --radius-lg: 30px;
-  --focus: 0 0 0 3px rgba(19, 66, 255, 0.28);
+  --focus: 0 0 0 3px rgba(var(--accent-rgb), 0.28);
 }
 
 *,
@@ -50,10 +50,10 @@ body {
   font-family: var(--font-ui);
   color: var(--ink);
   background:
-    radial-gradient(circle at 8% 9%, rgba(19, 66, 255, 0.06), transparent 22%),
-    radial-gradient(circle at 88% 10%, rgba(19, 66, 255, 0.08), transparent 24%),
-    radial-gradient(circle at 30% 92%, rgba(19, 66, 255, 0.04), transparent 28%),
-    linear-gradient(180deg, #fbfbfb 0%, #f4f6ff 58%, #fbfbfb 100%);
+    radial-gradient(circle at 8% 9%, rgba(var(--accent-rgb), 0.06), transparent 22%),
+    radial-gradient(circle at 88% 10%, rgba(var(--accent-rgb), 0.08), transparent 24%),
+    radial-gradient(circle at 30% 92%, rgba(var(--accent-rgb), 0.04), transparent 28%),
+    linear-gradient(180deg, var(--page-1) 0%, var(--tint-2) 58%, var(--page-1) 100%);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -71,8 +71,8 @@ body::before {
   pointer-events: none;
   background:
     radial-gradient(circle at 50% 0%, rgba(255,255,255,0.55), transparent 34%),
-    linear-gradient(rgba(19,66,255,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(19,66,255,0.06) 1px, transparent 1px);
+    linear-gradient(rgba(var(--accent-rgb),0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--accent-rgb),0.06) 1px, transparent 1px);
   background-size: auto, 36px 36px, 36px 36px;
   opacity: 0.5;
   z-index: -1;
@@ -87,9 +87,9 @@ input {
 button,
 select {
   min-height: 34px;
-  border: 2px solid rgba(19, 66, 255, 0.16);
+  border: 2px solid rgba(var(--accent-rgb), 0.16);
   border-radius: 16px;
-  background: linear-gradient(180deg, #ffffff 0%, #e8ecff 100%);
+  background: linear-gradient(180deg, var(--white) 0%, var(--tint-3) 100%);
   color: var(--ink-strong);
   padding: 7px 12px;
   cursor: pointer;
@@ -101,12 +101,12 @@ button:hover,
 select:hover {
   filter: brightness(1.02);
   transform: translateY(-1px);
-  box-shadow: 0 5px 0 rgba(19, 66, 255, 0.55), 0 12px 18px rgba(19, 66, 255, 0.12);
+  box-shadow: 0 5px 0 rgba(var(--accent-rgb), 0.55), 0 12px 18px rgba(var(--accent-rgb), 0.12);
 }
 
 button:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(19, 66, 255, 0.55), 0 6px 12px rgba(19, 66, 255, 0.10);
+  box-shadow: 0 2px 0 rgba(var(--accent-rgb), 0.55), 0 6px 12px rgba(var(--accent-rgb), 0.10);
 }
 
 button:focus-visible,
@@ -117,10 +117,10 @@ input:focus-visible {
 }
 
 button.active {
-  background: linear-gradient(180deg, #4d6cff 0%, #1342ff 100%);
-  color: #ffffff;
-  border-color: rgba(19, 66, 255, 0.40);
-  box-shadow: 0 4px 0 rgba(10, 40, 180, 0.65), 0 12px 18px rgba(19, 66, 255, 0.22);
+  background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
+  color: var(--white);
+  border-color: rgba(var(--accent-rgb), 0.40);
+  box-shadow: 0 4px 0 rgba(var(--accent-dark), 0.65), 0 12px 18px rgba(var(--accent-rgb), 0.22);
 }
 
 #topbar {
@@ -130,8 +130,8 @@ button.active {
   gap: 12px;
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.78);
-  border-bottom: 2px solid rgba(19, 66, 255, 0.16);
-  box-shadow: 0 8px 18px rgba(19, 66, 255, 0.06);
+  border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
+  box-shadow: 0 8px 18px rgba(var(--accent-rgb), 0.06);
 }
 
 .brand {
@@ -149,7 +149,7 @@ button.active {
 }
 
 .small-key {
-  border: 2px solid rgba(19, 66, 255, 0.16);
+  border: 2px solid rgba(var(--accent-rgb), 0.16);
   border-radius: 999px;
   padding: 3px 7px;
   font-size: 10px;
@@ -181,7 +181,7 @@ button.active {
 }
 
 .telemetry span:first-child {
-  color: oklch(50.58% .2886 264.84);
+  color: var(--accent);
 }
 
 .controls {
@@ -193,10 +193,10 @@ button.active {
 }
 
 .recording {
-  background: linear-gradient(180deg, #4d6cff 0%, #1342ff 100%);
+  background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
   color: #fff;
-  border-color: rgba(10, 40, 180, 0.40);
-  box-shadow: 0 4px 0 rgba(10, 40, 180, 0.75), 0 12px 18px rgba(19, 66, 255, 0.22);
+  border-color: rgba(var(--accent-dark), 0.40);
+  box-shadow: 0 4px 0 rgba(var(--accent-dark), 0.75), 0 12px 18px rgba(var(--accent-rgb), 0.22);
 }
 
 #workspace {
@@ -211,9 +211,9 @@ button.active {
   min-height: 0;
   padding: 0;
   background:
-    linear-gradient(180deg, #f4f6ff 0%, #fbfbfb 70%),
+    linear-gradient(180deg, var(--tint-2) 0%, var(--page-1) 70%),
     var(--bg-cream);
-  border-right: 2px solid rgba(19, 66, 255, 0.16);
+  border-right: 2px solid rgba(var(--accent-rgb), 0.16);
 }
 
 .stage-frame {
@@ -223,8 +223,8 @@ button.active {
   border-radius: var(--radius-lg);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255,255,255,0.08) 100%),
-    linear-gradient(180deg, #f4f6ff 0%, #f4f6ff 12%, #fbfbfb 100%);
-  border: 3px solid rgba(19, 66, 255, 0.28);
+    linear-gradient(180deg, var(--tint-2) 0%, var(--tint-2) 12%, var(--page-1) 100%);
+  border: 3px solid rgba(var(--accent-rgb), 0.28);
   box-shadow: inset 0 0 0 8px rgba(255,255,255,0.75), var(--card-shadow);
 }
 
@@ -248,7 +248,7 @@ button.active {
   bottom: 20px;
   height: 56px;
   border-radius: 999px;
-  background: rgba(19, 66, 255, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
   filter: blur(18px);
   pointer-events: none;
   z-index: 1;
@@ -262,13 +262,13 @@ button.active {
   padding: 7px 11px;
   border-radius: 999px;
   background: rgba(255,255,255,0.78);
-  border: 2px solid rgba(19, 66, 255, 0.16);
+  border: 2px solid rgba(var(--accent-rgb), 0.16);
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  box-shadow: 0 6px 14px rgba(19, 66, 255, 0.08);
+  box-shadow: 0 6px 14px rgba(var(--accent-rgb), 0.08);
 }
 
 .stage-label strong {
@@ -280,7 +280,7 @@ button.active {
   width: 18px;
   height: 18px;
   border-style: solid;
-  border-color: oklch(50.58% .2886 264.84);
+  border-color: var(--accent);
   z-index: 3;
 }
 
@@ -327,7 +327,7 @@ button.active {
   overflow: hidden;
   border-radius: 24px;
   background: rgba(255,255,255,0.62);
-  border: 3px solid rgba(19, 66, 255, 0.16);
+  border: 3px solid rgba(var(--accent-rgb), 0.16);
   box-shadow: var(--card-shadow);
   z-index: 5;
 }
@@ -344,35 +344,35 @@ button.active {
   text-transform: uppercase;
   color: var(--muted);
   background: rgba(255,255,255,0.78);
-  border-bottom: 2px solid rgba(19, 66, 255, 0.16);
+  border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
 }
 
 .camera-card-head span:last-child {
-  color: oklch(50.58% .2886 264.84);
+  color: var(--accent);
 }
 
 .camera-card-foot {
   border-bottom: 0;
-  border-top: 2px solid rgba(19, 66, 255, 0.16);
+  border-top: 2px solid rgba(var(--accent-rgb), 0.16);
 }
 
 #camera-canvas {
   display: block;
   width: 100%;
   height: 170px;
-  background: linear-gradient(180deg, #f4f6ff 0%, #f4f6ff 100%);
+  background: linear-gradient(180deg, var(--tint-2) 0%, var(--tint-2) 100%);
 }
 
 #side-panel {
   display: grid;
   grid-template-rows: auto auto auto 1fr auto;
   min-height: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.62) 0%, #f4f6ff 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.62) 0%, var(--tint-2) 100%);
 }
 
 .panel-section {
   padding: 12px;
-  border-bottom: 2px solid rgba(19, 66, 255, 0.16);
+  border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
 }
 
 .panel-header {
@@ -397,26 +397,26 @@ button.active {
   min-height: 98px;
   padding: 10px;
   position: relative;
-  border: 3px solid rgba(19, 66, 255, 0.16);
+  border: 3px solid rgba(var(--accent-rgb), 0.16);
   border-radius: 22px;
-  background: linear-gradient(180deg, #ffffff 0%, #f4f6ff 100%);
+  background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%);
   color: var(--ink);
   text-align: left;
   box-shadow: var(--card-shadow-soft);
 }
 
-.avatar-card:nth-child(1) { background: linear-gradient(180deg, #ffffff 0%, #f4f6ff 100%); }
-.avatar-card:nth-child(2) { background: linear-gradient(180deg, #ffffff 0%, #f4f6ff 100%); }
-.avatar-card:nth-child(3) { background: linear-gradient(180deg, #ffffff 0%, #f4f6ff 100%); }
-.avatar-card:nth-child(4) { background: linear-gradient(180deg, #ffffff 0%, #f4f6ff 100%); }
+.avatar-card:nth-child(1) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
+.avatar-card:nth-child(2) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
+.avatar-card:nth-child(3) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
+.avatar-card:nth-child(4) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
 
 .avatar-card:hover {
   transform: translateY(-1px);
 }
 
 .avatar-card.active {
-  border-color: oklch(50.58% .2886 264.84);
-  box-shadow: 0 0 0 5px rgba(19, 66, 255, 0.12), var(--card-shadow-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.12), var(--card-shadow-soft);
 }
 
 .avatar-icon {
@@ -424,7 +424,7 @@ button.active {
   display: grid;
   place-items: center;
   font-size: 18px;
-  color: oklch(50.58% .2886 264.84);
+  color: var(--accent);
 }
 
 .avatar-name {
@@ -439,7 +439,7 @@ button.active {
   display: inline-block;
   padding: 4px 7px;
   border-radius: 999px;
-  border: 2px solid rgba(19, 66, 255, 0.16);
+  border: 2px solid rgba(var(--accent-rgb), 0.16);
   background: rgba(255,255,255,0.62);
   font-size: 9px;
   font-weight: 800;
@@ -464,13 +464,13 @@ button.active {
 
 input[type="range"] {
   width: 100%;
-  accent-color: oklch(50.58% .2886 264.84);
+  accent-color: var(--accent);
 }
 
 input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: oklch(50.58% .2886 264.84);
+  accent-color: var(--accent);
 }
 
 .coach-title {
@@ -486,8 +486,8 @@ input[type="checkbox"] {
   display: inline-block;
   padding: 5px 8px;
   border-radius: 999px;
-  background: rgba(19, 66, 255, 0.10);
-  color: oklch(50.58% .2886 264.84);
+  background: rgba(var(--accent-rgb), 0.10);
+  color: var(--accent);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -498,7 +498,7 @@ input[type="checkbox"] {
   margin-top: 8px;
   font-size: 13px;
   line-height: 1.45;
-  color: rgba(0, 0, 0, 0.50);
+  color: var(--muted);
 }
 
 .settings-grid {
@@ -522,7 +522,7 @@ input[type="checkbox"] {
 }
 
 select {
-  background: linear-gradient(180deg, #ffffff 0%, #e8ecff 100%);
+  background: linear-gradient(180deg, var(--white) 0%, var(--tint-3) 100%);
 }
 
 option {
@@ -531,10 +531,10 @@ option {
 
 #calibrate-btn {
   width: 100%;
-  background: linear-gradient(180deg, #4d6cff 0%, #1342ff 100%);
+  background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
   color: #fff;
-  border-color: rgba(10, 40, 180, 0.40);
-  box-shadow: 0 4px 0 rgba(10, 40, 180, 0.75), 0 12px 18px rgba(19, 66, 255, 0.22);
+  border-color: rgba(var(--accent-dark), 0.40);
+  box-shadow: 0 4px 0 rgba(var(--accent-dark), 0.75), 0 12px 18px rgba(var(--accent-rgb), 0.22);
 }
 
 .side-footer {
@@ -549,8 +549,8 @@ option {
   display: grid;
   grid-template-columns: 1fr auto;
   background: rgba(255, 255, 255, 0.78);
-  border-top: 2px solid rgba(19, 66, 255, 0.16);
-  box-shadow: 0 -4px 10px rgba(19, 66, 255, 0.04);
+  border-top: 2px solid rgba(var(--accent-rgb), 0.16);
+  box-shadow: 0 -4px 10px rgba(var(--accent-rgb), 0.04);
   font-size: 11px;
   color: var(--muted);
 }
@@ -564,7 +564,7 @@ option {
 }
 
 .status-right {
-  color: oklch(50.58% .2886 264.84);
+  color: var(--accent);
   font-weight: 800;
 }
 
@@ -587,7 +587,7 @@ option {
   gap: 8px;
   border-radius: 24px;
   background: rgba(255,255,255,0.78);
-  border: 3px solid rgba(19, 66, 255, 0.16);
+  border: 3px solid rgba(var(--accent-rgb), 0.16);
   box-shadow: var(--card-shadow);
   font-size: 11px;
   color: var(--ink);
@@ -668,6 +668,102 @@ option {
   }
 }
 
+/* ---- Theme picker ---- */
+#theme-btn { font-weight: 800; }
+
+#theme-pop {
+  position: fixed;
+  top: 60px;
+  right: 14px;
+  z-index: 40;
+  width: 248px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(var(--accent-rgb), 0.20);
+  box-shadow: var(--card-shadow);
+}
+
+#theme-pop.hidden { display: none; }
+
+.theme-pop-title {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 9px;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.swatch:hover { transform: translateY(0) scale(1.14); }
+
+.swatch.is-on {
+  box-shadow: 0 0 0 2px var(--white), 0 0 0 4px currentColor;
+}
+
+.theme-divider {
+  height: 1px;
+  background: rgba(var(--accent-rgb), 0.16);
+  margin: 1px 0;
+}
+
+.set-list { display: grid; gap: 8px; }
+
+.set-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 0;
+  padding: 7px 9px;
+  border-radius: 14px;
+  border: 2px solid rgba(var(--accent-rgb), 0.16);
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  text-align: left;
+}
+
+.set-chip .sw {
+  width: 42px;
+  height: 18px;
+  border-radius: 7px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  flex: 0 0 auto;
+}
+
+.set-chip .nm {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+}
+
+.set-chip.is-on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.14);
+}
+
 </style>
 </head>
 <body data-testid="posepuppet-app">
@@ -691,6 +787,7 @@ option {
   <div id="controls" class="controls">
     <button id="record-btn">● rec 15s</button>
     <button id="info-btn">ⓘ</button>
+    <button id="theme-btn">🎨 cobalt</button>
     <button id="panel-toggle">⚙</button>
     <button id="avatar-btn">avatar: robot</button>
     <button id="video-file-btn">load video</button>
@@ -839,7 +936,155 @@ option {
   <div class="panel-row"><button>clear calib</button><button>reset defaults</button></div>
 </div>
 
+<div id="theme-pop" class="hidden" aria-label="theme picker">
+  <div class="theme-pop-title">accent · 13 hues</div>
+  <div class="swatch-grid" id="swatch-grid"></div>
+  <div class="theme-divider"></div>
+  <div class="theme-pop-title">full palettes · 3 sets</div>
+  <div class="set-list" id="set-list"></div>
+</div>
+
 <script>
+/* ============================================================
+   THEME ENGINE
+   Every accent / surface colour in the CSS and on the canvases
+   resolves to one of these tokens, so swapping a palette is a
+   single applyTheme() call.
+   ============================================================ */
+
+// 13 accent hues — these keep the clean neutral (white/near-black) palette
+// and only swap the vivid accent + its derived tints. rgb arrays so the
+// build-time colour refactor never touches them.
+const ACCENTS = [
+  { name: "cobalt",    rgb: [ 19,  66, 255] },
+  { name: "indigo",    rgb: [ 79,  70, 229] },
+  { name: "violet",    rgb: [124,  58, 237] },
+  { name: "fuchsia",   rgb: [192,  38, 211] },
+  { name: "magenta",   rgb: [219,  39, 119] },
+  { name: "crimson",   rgb: [225,  29,  72] },
+  { name: "red",       rgb: [220,  38,  38] },
+  { name: "tangerine", rgb: [234,  88,  12] },
+  { name: "amber",     rgb: [180,  83,   9] },
+  { name: "emerald",   rgb: [  5, 150, 105] },
+  { name: "teal",      rgb: [ 13, 148, 136] },
+  { name: "sky",       rgb: [  2, 132, 199] },
+  { name: "lime",      rgb: [ 77, 124,  15] }
+];
+
+const WHITE = [255, 255, 255], BLACK = [0, 0, 0];
+const mix = (c, t, k) => c.map((v, i) => Math.round(v + (t[i] - v) * k));
+const toHex = (a) => "#" + a.map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, "0")).join("");
+const toRgb = (a) => a[0] + ", " + a[1] + ", " + a[2];
+
+// Neutral theme: clean editorial palette, one vivid accent.
+function neutral(rgb) {
+  return {
+    accentRgb:  toRgb(rgb),
+    accentDark: toRgb(mix(rgb, BLACK, 0.32)),
+    accent:     toHex(rgb),
+    accentLight:toHex(mix(rgb, WHITE, 0.30)),
+    tint1:      toHex(mix(rgb, WHITE, 0.88)),
+    tint2:      toHex(mix(rgb, WHITE, 0.955)),
+    tint3:      toHex(mix(rgb, WHITE, 0.91)),
+    page1:      "#fbfbfb",
+    page2:      toHex(mix(rgb, WHITE, 0.955)),
+    white:      "#ffffff",
+    stageBg:    "#ffffff",
+    ink:        "#111111",
+    inkStrong:  "#111111",
+    muted:      "rgba(0, 0, 0, 0.5)"
+  };
+}
+
+// Full palettes: not neutral — tinted paper, coloured ink, warm/cool surfaces.
+const palette = (rgb, over) => Object.assign(neutral(rgb), over);
+
+const SETS = [
+  {
+    name: "Sunset Clay",
+    theme: palette([226, 100, 60], {
+      page1: "#fdf6f0", page2: "#f7e7da", stageBg: "#fff7f1", white: "#fffaf5",
+      tint1: "#f4d6c3", tint2: "#fceadf", tint3: "#f7e0d0",
+      ink: "#3a2118", inkStrong: "#2a1812", muted: "rgba(58, 33, 24, 0.55)"
+    })
+  },
+  {
+    name: "Forest Studio",
+    theme: palette([16, 130, 92], {
+      page1: "#f3f7f3", page2: "#e4efe7", stageBg: "#f5faf6", white: "#fbfdfb",
+      tint1: "#cce6d4", tint2: "#e8f3eb", tint3: "#daecde",
+      ink: "#16261d", inkStrong: "#0f1d16", muted: "rgba(22, 38, 29, 0.55)"
+    })
+  },
+  {
+    name: "Orchid Dusk",
+    theme: palette([156, 52, 168], {
+      page1: "#f8f2fb", page2: "#ece0f3", stageBg: "#f8f1fc", white: "#fdfafe",
+      tint1: "#e4d2ef", tint2: "#f0e6f7", tint3: "#e9d8f1",
+      ink: "#251434", inkStrong: "#1b0e27", muted: "rgba(37, 20, 52, 0.55)"
+    })
+  }
+];
+
+// Live theme object the canvases read from. Initialised to the first accent.
+let T = neutral(ACCENTS[0].rgb);
+
+function applyTheme(t, label) {
+  T = t;
+  const s = document.documentElement.style;
+  const set = {
+    "--accent-rgb": t.accentRgb, "--accent-dark": t.accentDark,
+    "--accent": t.accent, "--accent-light": t.accentLight,
+    "--tint-1": t.tint1, "--tint-2": t.tint2, "--tint-3": t.tint3,
+    "--page-1": t.page1, "--page-2": t.page2, "--white": t.white,
+    "--ink": t.ink, "--ink-strong": t.inkStrong, "--muted": t.muted
+  };
+  for (const k in set) s.setProperty(k, set[k]);
+  if (label) document.getElementById("theme-btn").textContent = "🎨 " + label;
+  drawCamera();
+}
+
+// Build the picker UI.
+function buildThemePicker() {
+  const grid = document.getElementById("swatch-grid");
+  ACCENTS.forEach((a, i) => {
+    const b = document.createElement("button");
+    b.className = "swatch" + (i === 0 ? " is-on" : "");
+    b.style.background = toHex(a.rgb);
+    b.style.color = toHex(a.rgb);
+    b.title = a.name;
+    b.addEventListener("click", () => {
+      applyTheme(neutral(a.rgb), a.name);
+      markActive(b);
+    });
+    grid.appendChild(b);
+  });
+
+  const list = document.getElementById("set-list");
+  SETS.forEach(s => {
+    const b = document.createElement("button");
+    b.className = "set-chip";
+    const sw = document.createElement("span");
+    sw.className = "sw";
+    sw.style.background = "linear-gradient(180deg, " + s.theme.accentLight + " 0%, " + s.theme.accent + " 100%)";
+    const nm = document.createElement("span");
+    nm.className = "nm";
+    nm.textContent = s.name;
+    b.append(sw, nm);
+    b.addEventListener("click", () => {
+      applyTheme(s.theme, s.name);
+      markActive(b);
+    });
+    list.appendChild(b);
+  });
+}
+
+function markActive(el) {
+  document.querySelectorAll(".swatch.is-on, .set-chip.is-on")
+    .forEach(n => n.classList.remove("is-on"));
+  el.classList.add("is-on");
+}
+
 const state = {
   avatar: "robot",
   recording: false,
@@ -870,6 +1115,7 @@ function drawStage(now) {
   const h = stage.clientHeight;
 
   stageCtx.clearRect(0, 0, w, h);
+  const ac = a => "rgba(" + T.accentRgb + ", " + a + ")";
 
   const cx = w / 2;
   const base = h * 0.78;        // model origin (torso/head reference)
@@ -878,7 +1124,7 @@ function drawStage(now) {
   // ---- White stage with a luminous rectangular pad under the model ----
   const t = (now || 0) * 0.001;
 
-  stageCtx.fillStyle = "#ffffff";
+  stageCtx.fillStyle = T.stageBg;
   stageCtx.fillRect(0, 0, w, h);
 
   // rectangular pad lying flat on the floor (perspective quad)
@@ -910,9 +1156,9 @@ function drawStage(now) {
   quad(stageCtx, 1);
   stageCtx.clip();
   const bloom = stageCtx.createRadialGradient(C[0], C[1], 2, C[0], C[1], frontHalf);
-  bloom.addColorStop(0, "rgba(19, 66, 255, " + (0.10 + 0.03 * breathe).toFixed(3) + ")");
-  bloom.addColorStop(0.5, "rgba(19, 66, 255, 0.045)");
-  bloom.addColorStop(1, "rgba(19, 66, 255, 0)");
+  bloom.addColorStop(0, ac((0.10 + 0.03 * breathe).toFixed(3)));
+  bloom.addColorStop(0.5, ac(0.045));
+  bloom.addColorStop(1, ac(0));
   stageCtx.fillStyle = bloom;
   stageCtx.fillRect(0, 0, w, h);
 
@@ -922,7 +1168,7 @@ function drawStage(now) {
   for (let i = 0; i <= nx; i++) {
     const u = i / nx;
     const f = lerp(FL, FR, u), b = lerp(BL, BR, u);
-    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.07 * edge(u)).toFixed(3) + ")";
+    stageCtx.strokeStyle = ac((0.07 * edge(u)).toFixed(3));
     stageCtx.beginPath();
     stageCtx.moveTo(f[0], f[1]);
     stageCtx.lineTo(b[0], b[1]);
@@ -931,7 +1177,7 @@ function drawStage(now) {
   for (let j = 0; j <= ny; j++) {
     const v = j / ny;
     const l = lerp(FL, BL, v), r = lerp(FR, BR, v);
-    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.07 * edge(v)).toFixed(3) + ")";
+    stageCtx.strokeStyle = ac((0.07 * edge(v)).toFixed(3));
     stageCtx.beginPath();
     stageCtx.moveTo(l[0], l[1]);
     stageCtx.lineTo(r[0], r[1]);
@@ -944,9 +1190,9 @@ function drawStage(now) {
   for (let p = 0; p < 2; p++) {
     const phase = ((t / period) + p * 0.5) % 1;   // 0 (center) -> 1 (edge)
     const env = Math.sin(Math.PI * phase);        // soft fade at both ends
-    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.24 * env).toFixed(3) + ")";
+    stageCtx.strokeStyle = ac((0.24 * env).toFixed(3));
     stageCtx.lineWidth = 1.5;
-    stageCtx.shadowColor = "rgba(19, 66, 255, 0.5)";
+    stageCtx.shadowColor = ac(0.5);
     stageCtx.shadowBlur = 18 * env;
     quad(stageCtx, phase);
     stageCtx.stroke();
@@ -954,7 +1200,7 @@ function drawStage(now) {
   stageCtx.shadowBlur = 0;
 
   // faint pad outline
-  stageCtx.strokeStyle = "rgba(19, 66, 255, 0.10)";
+  stageCtx.strokeStyle = ac(0.10);
   stageCtx.lineWidth = 1;
   quad(stageCtx, 1);
   stageCtx.stroke();
@@ -962,8 +1208,8 @@ function drawStage(now) {
   // soft contact shadow grounding the model
   stageCtx.save();
   const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, frontHalf * 0.5);
-  contact.addColorStop(0, "rgba(19, 66, 255, 0.16)");
-  contact.addColorStop(1, "rgba(19, 66, 255, 0)");
+  contact.addColorStop(0, ac(0.16));
+  contact.addColorStop(1, ac(0));
   stageCtx.fillStyle = contact;
   stageCtx.beginPath();
   stageCtx.ellipse(cx, floorY, frontHalf * 0.5, frontHalf * 0.17, 0, 0, Math.PI * 2);
@@ -974,10 +1220,10 @@ function drawStage(now) {
   stageCtx.save();
   stageCtx.translate(cx, base);
 
-  stageCtx.fillStyle = "#e6ebff";
-  stageCtx.strokeStyle = "#1342ff";
+  stageCtx.fillStyle = T.tint1;
+  stageCtx.strokeStyle = T.accent;
   stageCtx.lineWidth = 2;
-  stageCtx.shadowColor = "rgba(19, 66, 255, 0.18)";
+  stageCtx.shadowColor = ac(0.18);
   stageCtx.shadowBlur = 12;
   stageCtx.shadowOffsetY = 8;
 
@@ -994,16 +1240,16 @@ function drawStage(now) {
   stageCtx.beginPath();
   stageCtx.arc(-12, -250, 4, 0, Math.PI * 2);
   stageCtx.arc(15, -250, 4, 0, Math.PI * 2);
-  stageCtx.fillStyle = "#ffffff";
+  stageCtx.fillStyle = T.white;
   stageCtx.fill();
 
-  stageCtx.fillStyle = "#e6ebff";
+  stageCtx.fillStyle = T.tint1;
   rect(-44, -195, 88, 105);
 
-  stageCtx.fillStyle = "#f4f6ff";
+  stageCtx.fillStyle = T.tint2;
   rect(-13, -168, 26, 34);
 
-  stageCtx.fillStyle = "#e6ebff";
+  stageCtx.fillStyle = T.tint1;
   stageCtx.save();
   stageCtx.translate(-45, -180);
   stageCtx.rotate(0.08);
@@ -1022,7 +1268,7 @@ function drawStage(now) {
   stageCtx.restore();
 
   stageCtx.shadowColor = "transparent";
-  stageCtx.fillStyle = "rgba(0, 0, 0, 0.50)";
+  stageCtx.fillStyle = T.muted;
   stageCtx.font = "800 12px \"Avenir Next\", \"Nunito\", ui-sans-serif, system-ui";
   stageCtx.fillText("drag to orbit · scroll to zoom · 3d stage preview", 24, h - 24);
 }
@@ -1033,13 +1279,14 @@ function drawCamera() {
   const h = camera.clientHeight;
 
   cameraCtx.clearRect(0, 0, w, h);
+  const ac = a => "rgba(" + T.accentRgb + ", " + a + ")";
   const camBg = cameraCtx.createLinearGradient(0, 0, 0, h);
-  camBg.addColorStop(0, "#f4f6ff");
-  camBg.addColorStop(1, "#f4f6ff");
+  camBg.addColorStop(0, T.tint2);
+  camBg.addColorStop(1, T.tint2);
   cameraCtx.fillStyle = camBg;
   cameraCtx.fillRect(0, 0, w, h);
 
-  cameraCtx.strokeStyle = "rgba(19, 66, 255, 0.16)";
+  cameraCtx.strokeStyle = ac(0.16);
   for (let x = 0; x < w; x += 40) {
     cameraCtx.beginPath();
     cameraCtx.moveTo(x, 0);
@@ -1050,8 +1297,8 @@ function drawCamera() {
   const cx = w / 2;
   const cy = h * 0.58;
 
-  cameraCtx.fillStyle = "#e6ebff";
-  cameraCtx.strokeStyle = "#1342ff";
+  cameraCtx.fillStyle = T.tint1;
+  cameraCtx.strokeStyle = T.accent;
   cameraCtx.lineWidth = 1;
 
   cameraCtx.beginPath();
@@ -1062,7 +1309,7 @@ function drawCamera() {
   cameraCtx.fillRect(cx - 34, cy - 18, 68, 48);
   cameraCtx.strokeRect(cx - 34, cy - 18, 68, 48);
 
-  cameraCtx.strokeStyle = "#1342ff";
+  cameraCtx.strokeStyle = T.accent;
   cameraCtx.beginPath();
   cameraCtx.moveTo(cx - 34, cy);
   cameraCtx.lineTo(cx - 80, cy + 4);
@@ -1074,7 +1321,7 @@ function drawCamera() {
   cameraCtx.lineTo(cx + 26, cy + 82);
   cameraCtx.stroke();
 
-  cameraCtx.fillStyle = "#ffffff";
+  cameraCtx.fillStyle = T.white;
   const pts = [[cx, cy - 45], [cx - 34, cy], [cx + 34, cy], [cx - 80, cy + 4], [cx + 80, cy + 4]];
   for (const p of pts) {
     cameraCtx.beginPath();
@@ -1139,6 +1386,25 @@ document.querySelectorAll(".panel-slider input").forEach(input => {
 });
 
 window.addEventListener("resize", drawCamera);
+
+// ---- Theme picker wiring ----
+const themePop = document.getElementById("theme-pop");
+const themeBtn = document.getElementById("theme-btn");
+
+themeBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  themePop.classList.toggle("hidden");
+});
+
+document.addEventListener("click", (e) => {
+  if (!themePop.classList.contains("hidden") &&
+      !themePop.contains(e.target) && e.target !== themeBtn) {
+    themePop.classList.add("hidden");
+  }
+});
+
+buildThemePicker();
+applyTheme(neutral(ACCENTS[0].rgb), ACCENTS[0].name);
 
 function loop(now) {
   drawStage(now);
