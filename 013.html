@@ -230,11 +230,12 @@ button.active {
   inset: 14px;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255,255,255,0.08) 100%),
-    linear-gradient(180deg, var(--tint-2) 0%, var(--tint-2) 12%, var(--page-1) 100%);
-  border: 3px solid rgba(var(--accent-rgb), 0.28);
-  box-shadow: inset 0 0 0 8px rgba(255,255,255,0.75), var(--card-shadow);
+  /* transparent frosted glass — the floor is a glass pane for every theme */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 100%);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 3px solid rgba(var(--accent-rgb), 0.22);
+  box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.45), var(--card-shadow);
 }
 
 .stage-frame::before {
@@ -948,10 +949,10 @@ option {
 </div>
 
 <div id="theme-pop" class="hidden" aria-label="theme picker">
-  <div class="theme-pop-title">accent · 13 hues</div>
+  <div class="theme-pop-title">accent · 14 hues</div>
   <div class="swatch-grid" id="swatch-grid"></div>
   <div class="theme-divider"></div>
-  <div class="theme-pop-title">full palettes · 21 sets</div>
+  <div class="theme-pop-title">full palettes · 20 sets</div>
   <div class="set-list" id="set-list"></div>
 </div>
 
@@ -963,11 +964,12 @@ option {
    single applyTheme() call.
    ============================================================ */
 
-// 13 accent hues — these keep the clean neutral (white/near-black) palette
+// 14 accent hues — these keep the clean neutral (white/near-black) palette
 // and only swap the vivid accent + its derived tints. rgb arrays so the
 // build-time colour refactor never touches them.
 const ACCENTS = [
   { name: "cobalt",    rgb: [ 19,  66, 255] },
+  { name: "bubblegum", rgb: [255,  93, 143] },
   { name: "indigo",    rgb: [ 79,  70, 229] },
   { name: "violet",    rgb: [124,  58, 237] },
   { name: "fuchsia",   rgb: [192,  38, 211] },
@@ -1177,14 +1179,6 @@ const SETS = [
     })
   },
   {
-    name: "Bubblegum",
-    theme: theme([255, 93, 143], [56, 189, 248], [52, 211, 153], {
-      page1: "#fdf4f8", page2: "#f6e4ee", stageBg: "#fdf3f8", white: "#fffafc",
-      tint1: "#f6d3e2", tint2: "#fbe7f0", tint3: "#f6dae6",
-      ink: "#33203a", inkStrong: "#25132c", muted: "rgba(51, 32, 58, 0.55)"
-    })
-  },
-  {
     name: "Cobalt Carnival",
     theme: theme([59, 91, 219], [255, 107, 107], [252, 196, 25], {
       page1: "#f5f7fd", page2: "#e6ebf8", stageBg: "#f6f8fd", white: "#fbfcff",
@@ -1295,8 +1289,9 @@ function drawStage(now) {
   // ---- White stage with a luminous rectangular pad under the model ----
   const t = (now || 0) * 0.001;
 
-  stageCtx.fillStyle = T.stageBg;
-  stageCtx.fillRect(0, 0, w, h);
+  // Floor is always a transparent frosted-glass pane — never paint a solid
+  // backdrop. The stage frame's glass shows through; the pad below adds a
+  // faint glassy sheen with an extremely subtle grid + pulse.
 
   // rectangular pad lying flat on the floor (perspective quad)
   const frontHalf = Math.min(w * 0.30, 290);
@@ -1322,24 +1317,32 @@ function drawStage(now) {
   const breathe = 0.5 + 0.5 * Math.sin(t * 0.5);   // slow 0..1
   const edge = (p) => 0.16 + 0.84 * Math.sin(Math.PI * p);   // faint toward edges
 
-  // soft bluish bloom resting on the pad (dreamy halo, clipped to the rectangle)
+  // glassy pane + soft bloom resting on the pad (clipped to the rectangle)
   stageCtx.save();
   quad(stageCtx, 1);
   stageCtx.clip();
+
+  // frosted-glass sheen: a faint translucent pane lying on the floor
+  const glass = stageCtx.createLinearGradient(0, yBack, 0, yFront);
+  glass.addColorStop(0, "rgba(255, 255, 255, 0.04)");
+  glass.addColorStop(1, "rgba(255, 255, 255, 0.13)");
+  stageCtx.fillStyle = glass;
+  stageCtx.fillRect(0, 0, w, h);
+
   const bloom = stageCtx.createRadialGradient(C[0], C[1], 2, C[0], C[1], frontHalf);
-  bloom.addColorStop(0, ac((0.10 + 0.03 * breathe).toFixed(3)));
-  bloom.addColorStop(0.5, ac(0.045));
+  bloom.addColorStop(0, ac((0.05 + 0.02 * breathe).toFixed(3)));
+  bloom.addColorStop(0.5, ac(0.02));
   bloom.addColorStop(1, ac(0));
   stageCtx.fillStyle = bloom;
   stageCtx.fillRect(0, 0, w, h);
 
-  // faint grid lines inside the pad, fading toward the edges
+  // extremely subtle grid lines inside the pad, fading toward the edges
   stageCtx.lineWidth = 1;
   const nx = 7, ny = 7;
   for (let i = 0; i <= nx; i++) {
     const u = i / nx;
     const f = lerp(FL, FR, u), b = lerp(BL, BR, u);
-    stageCtx.strokeStyle = ac((0.07 * edge(u)).toFixed(3));
+    stageCtx.strokeStyle = ac((0.024 * edge(u)).toFixed(3));
     stageCtx.beginPath();
     stageCtx.moveTo(f[0], f[1]);
     stageCtx.lineTo(b[0], b[1]);
@@ -1348,7 +1351,7 @@ function drawStage(now) {
   for (let j = 0; j <= ny; j++) {
     const v = j / ny;
     const l = lerp(FL, BL, v), r = lerp(FR, BR, v);
-    stageCtx.strokeStyle = ac((0.07 * edge(v)).toFixed(3));
+    stageCtx.strokeStyle = ac((0.024 * edge(v)).toFixed(3));
     stageCtx.beginPath();
     stageCtx.moveTo(l[0], l[1]);
     stageCtx.lineTo(r[0], r[1]);
@@ -1356,22 +1359,22 @@ function drawStage(now) {
   }
   stageCtx.restore();
 
-  // dreamy pulse: concentric rectangles slowly expanding outward, fading in/out
+  // extremely subtle pulse: concentric rectangles slowly expanding, fading in/out
   const period = 5.5;
   for (let p = 0; p < 2; p++) {
     const phase = ((t / period) + p * 0.5) % 1;   // 0 (center) -> 1 (edge)
     const env = Math.sin(Math.PI * phase);        // soft fade at both ends
-    stageCtx.strokeStyle = ac((0.24 * env).toFixed(3));
+    stageCtx.strokeStyle = ac((0.08 * env).toFixed(3));
     stageCtx.lineWidth = 1.5;
-    stageCtx.shadowColor = ac(0.5);
-    stageCtx.shadowBlur = 18 * env;
+    stageCtx.shadowColor = ac(0.25);
+    stageCtx.shadowBlur = 10 * env;
     quad(stageCtx, phase);
     stageCtx.stroke();
   }
   stageCtx.shadowBlur = 0;
 
   // faint pad outline
-  stageCtx.strokeStyle = ac(0.10);
+  stageCtx.strokeStyle = ac(0.06);
   stageCtx.lineWidth = 1;
   quad(stageCtx, 1);
   stageCtx.stroke();
