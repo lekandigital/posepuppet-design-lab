@@ -875,83 +875,98 @@ function drawStage(now) {
   const base = h * 0.78;        // model origin (torso/head reference)
   const floorY = base + 60;     // turntable plane, level with the feet
 
-  // ---- Two-tone studio: wall + solid floor plane ----
-  const floorTop = h * 0.62;    // horizon where the wall meets the floor
-
-  stageCtx.fillStyle = "#fbfbfb";              // back wall
-  stageCtx.fillRect(0, 0, w, floorTop);
-
-  stageCtx.fillStyle = "#eaeeff";              // solid floor
-  stageCtx.fillRect(0, floorTop, w, h - floorTop);
-
-  // ---- Animated perspective grid floor ----
+  // ---- White stage with a luminous rectangular pad under the model ----
   const t = (now || 0) * 0.001;
-  const horizonY = floorTop;
-  const bottomY = h;
-  const gxMax = w * 0.95;
-  const cols = 11;
-  const rows = 18;
-  const maxDepth = 18;
 
-  const proj = (gx, gz) => {
-    const p = 1 / (1 + gz);
-    return [cx + gx * p, horizonY + (bottomY - horizonY) * p];
+  stageCtx.fillStyle = "#ffffff";
+  stageCtx.fillRect(0, 0, w, h);
+
+  // rectangular pad lying flat on the floor (perspective quad)
+  const frontHalf = Math.min(w * 0.30, 290);
+  const backHalf = frontHalf * 0.64;       // narrower at the back -> perspective
+  const yFront = floorY + 56;
+  const yBack = floorY - 70;
+  const FL = [cx - frontHalf, yFront];
+  const FR = [cx + frontHalf, yFront];
+  const BR = [cx + backHalf, yBack];
+  const BL = [cx - backHalf, yBack];
+  const C = [cx, (yFront + yBack) / 2];     // pad center
+  const lerp = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+  const quad = (ctx, s) => {               // rectangle scaled s from the center
+    const a = lerp(C, FL, s), b = lerp(C, FR, s), c = lerp(C, BR, s), d = lerp(C, BL, s);
+    ctx.beginPath();
+    ctx.moveTo(a[0], a[1]);
+    ctx.lineTo(b[0], b[1]);
+    ctx.lineTo(c[0], c[1]);
+    ctx.lineTo(d[0], d[1]);
+    ctx.closePath();
   };
 
-  // pulse drifts slowly from the horizon toward the viewer, looping
-  const period = 7.5;
-  const pulse = 1 - ((t % period) / period);   // 1 (far) -> 0 (near)
-  // gentle overall breathing for a dreamy feel
-  const breathe = 0.04 * Math.sin(t * 0.5);
+  const breathe = 0.5 + 0.5 * Math.sin(t * 0.5);   // slow 0..1
+  const edge = (p) => 0.16 + 0.84 * Math.sin(Math.PI * p);   // faint toward edges
 
+  // soft bluish bloom resting on the pad (dreamy halo, clipped to the rectangle)
   stageCtx.save();
-  stageCtx.beginPath();
-  stageCtx.rect(0, horizonY, w, h - horizonY);
+  quad(stageCtx, 1);
   stageCtx.clip();
+  const bloom = stageCtx.createRadialGradient(C[0], C[1], 2, C[0], C[1], frontHalf);
+  bloom.addColorStop(0, "rgba(19, 66, 255, " + (0.10 + 0.03 * breathe).toFixed(3) + ")");
+  bloom.addColorStop(0.5, "rgba(19, 66, 255, 0.045)");
+  bloom.addColorStop(1, "rgba(19, 66, 255, 0)");
+  stageCtx.fillStyle = bloom;
+  stageCtx.fillRect(0, 0, w, h);
 
-  // vertical lines converging to the vanishing point
-  stageCtx.strokeStyle = "rgba(19, 66, 255, 0.10)";
+  // faint grid lines inside the pad, fading toward the edges
   stageCtx.lineWidth = 1;
-  for (let i = -cols; i <= cols; i++) {
-    const gx = (i / cols) * gxMax;
-    const a = proj(gx, 0);
-    const b = proj(gx, maxDepth);
+  const nx = 7, ny = 7;
+  for (let i = 0; i <= nx; i++) {
+    const u = i / nx;
+    const f = lerp(FL, FR, u), b = lerp(BL, BR, u);
+    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.07 * edge(u)).toFixed(3) + ")";
     stageCtx.beginPath();
-    stageCtx.moveTo(a[0], a[1]);
+    stageCtx.moveTo(f[0], f[1]);
     stageCtx.lineTo(b[0], b[1]);
     stageCtx.stroke();
   }
-
-  // horizontal rows bunching toward the horizon, with the travelling pulse
-  for (let j = 0; j <= rows; j++) {
-    const dn = j / rows;                  // 0 near -> 1 far
-    const gz = dn * maxDepth;
-    const l = proj(-gxMax, gz);
-    const r = proj(gxMax, gz);
-    const d = dn - pulse;
-    const glow = Math.exp(-(d * d) / (2 * 0.16 * 0.16));   // wide, soft band
-    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.08 + breathe + 0.20 * glow).toFixed(3) + ")";
-    stageCtx.lineWidth = 1 + 0.6 * glow;
-    stageCtx.shadowColor = "rgba(19, 66, 255, 0.45)";
-    stageCtx.shadowBlur = 26 * glow;
+  for (let j = 0; j <= ny; j++) {
+    const v = j / ny;
+    const l = lerp(FL, BL, v), r = lerp(FR, BR, v);
+    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.07 * edge(v)).toFixed(3) + ")";
     stageCtx.beginPath();
     stageCtx.moveTo(l[0], l[1]);
     stageCtx.lineTo(r[0], r[1]);
     stageCtx.stroke();
   }
-  stageCtx.shadowBlur = 0;
   stageCtx.restore();
 
-  // contact shadow grounding the model on the floor
-  const rx = Math.min(w * 0.22, 200);
-  const ry = rx * 0.16;
+  // dreamy pulse: concentric rectangles slowly expanding outward, fading in/out
+  const period = 5.5;
+  for (let p = 0; p < 2; p++) {
+    const phase = ((t / period) + p * 0.5) % 1;   // 0 (center) -> 1 (edge)
+    const env = Math.sin(Math.PI * phase);        // soft fade at both ends
+    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.24 * env).toFixed(3) + ")";
+    stageCtx.lineWidth = 1.5;
+    stageCtx.shadowColor = "rgba(19, 66, 255, 0.5)";
+    stageCtx.shadowBlur = 18 * env;
+    quad(stageCtx, phase);
+    stageCtx.stroke();
+  }
+  stageCtx.shadowBlur = 0;
+
+  // faint pad outline
+  stageCtx.strokeStyle = "rgba(19, 66, 255, 0.10)";
+  stageCtx.lineWidth = 1;
+  quad(stageCtx, 1);
+  stageCtx.stroke();
+
+  // soft contact shadow grounding the model
   stageCtx.save();
-  const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, rx);
-  contact.addColorStop(0, "rgba(19, 66, 255, 0.22)");
+  const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, frontHalf * 0.5);
+  contact.addColorStop(0, "rgba(19, 66, 255, 0.16)");
   contact.addColorStop(1, "rgba(19, 66, 255, 0)");
   stageCtx.fillStyle = contact;
   stageCtx.beginPath();
-  stageCtx.ellipse(cx, floorY, rx, ry, 0, 0, Math.PI * 2);
+  stageCtx.ellipse(cx, floorY, frontHalf * 0.5, frontHalf * 0.17, 0, 0, Math.PI * 2);
   stageCtx.fill();
   stageCtx.restore();
 
