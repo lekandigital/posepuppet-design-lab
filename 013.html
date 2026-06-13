@@ -855,52 +855,107 @@ const cameraCtx = camera.getContext("2d");
 function resizeCanvas(canvas, ctx) {
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = Math.max(1, Math.round(rect.width * dpr));
-  canvas.height = Math.max(1, Math.round(rect.height * dpr));
+  const W = Math.max(1, Math.round(rect.width * dpr));
+  const H = Math.max(1, Math.round(rect.height * dpr));
+  if (canvas.width !== W || canvas.height !== H) {
+    canvas.width = W;
+    canvas.height = H;
+  }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-function drawStage() {
+function drawStage(now) {
   resizeCanvas(stage, stageCtx);
   const w = stage.clientWidth;
   const h = stage.clientHeight;
 
   stageCtx.clearRect(0, 0, w, h);
-  const sky = stageCtx.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, "#fbfbfb");
-  sky.addColorStop(0.42, "#f4f6ff");
-  sky.addColorStop(1, "#fbfbfb");
-  stageCtx.fillStyle = sky;
-  stageCtx.fillRect(0, 0, w, h);
-
-  const spotlight = stageCtx.createRadialGradient(w * 0.5, h * 0.22, 10, w * 0.5, h * 0.22, Math.max(w, h) * 0.46);
-  spotlight.addColorStop(0, "rgba(255,255,255,0.66)");
-  spotlight.addColorStop(0.55, "rgba(255,255,255,0.12)");
-  spotlight.addColorStop(1, "rgba(255,255,255,0)");
-  stageCtx.fillStyle = spotlight;
-  stageCtx.fillRect(0, 0, w, h);
-
-  const horizon = h * 0.62;
-  stageCtx.strokeStyle = "rgba(19, 66, 255, 0.16)";
-  stageCtx.lineWidth = 1;
-
-  for (let y = horizon; y < h; y += 30) {
-    stageCtx.beginPath();
-    stageCtx.moveTo(0, y);
-    stageCtx.lineTo(w, y);
-    stageCtx.stroke();
-  }
-
-  for (let x = -w; x <= w * 2; x += 52) {
-    stageCtx.beginPath();
-    stageCtx.moveTo(w / 2, horizon);
-    stageCtx.lineTo(x, h);
-    stageCtx.stroke();
-  }
 
   const cx = w / 2;
-  const base = h * 0.78;
+  const base = h * 0.78;        // model origin (torso/head reference)
+  const floorY = base + 60;     // turntable plane, level with the feet
 
+  // ---- Two-tone studio: wall + solid floor plane ----
+  const floorTop = h * 0.62;    // horizon where the wall meets the floor
+
+  stageCtx.fillStyle = "#fbfbfb";              // back wall
+  stageCtx.fillRect(0, 0, w, floorTop);
+
+  stageCtx.fillStyle = "#eaeeff";              // solid floor
+  stageCtx.fillRect(0, floorTop, w, h - floorTop);
+
+  // ---- Animated perspective grid floor ----
+  const t = (now || 0) * 0.001;
+  const horizonY = floorTop;
+  const bottomY = h;
+  const gxMax = w * 0.95;
+  const cols = 11;
+  const rows = 18;
+  const maxDepth = 18;
+
+  const proj = (gx, gz) => {
+    const p = 1 / (1 + gz);
+    return [cx + gx * p, horizonY + (bottomY - horizonY) * p];
+  };
+
+  // pulse drifts slowly from the horizon toward the viewer, looping
+  const period = 7.5;
+  const pulse = 1 - ((t % period) / period);   // 1 (far) -> 0 (near)
+  // gentle overall breathing for a dreamy feel
+  const breathe = 0.04 * Math.sin(t * 0.5);
+
+  stageCtx.save();
+  stageCtx.beginPath();
+  stageCtx.rect(0, horizonY, w, h - horizonY);
+  stageCtx.clip();
+
+  // vertical lines converging to the vanishing point
+  stageCtx.strokeStyle = "rgba(19, 66, 255, 0.10)";
+  stageCtx.lineWidth = 1;
+  for (let i = -cols; i <= cols; i++) {
+    const gx = (i / cols) * gxMax;
+    const a = proj(gx, 0);
+    const b = proj(gx, maxDepth);
+    stageCtx.beginPath();
+    stageCtx.moveTo(a[0], a[1]);
+    stageCtx.lineTo(b[0], b[1]);
+    stageCtx.stroke();
+  }
+
+  // horizontal rows bunching toward the horizon, with the travelling pulse
+  for (let j = 0; j <= rows; j++) {
+    const dn = j / rows;                  // 0 near -> 1 far
+    const gz = dn * maxDepth;
+    const l = proj(-gxMax, gz);
+    const r = proj(gxMax, gz);
+    const d = dn - pulse;
+    const glow = Math.exp(-(d * d) / (2 * 0.16 * 0.16));   // wide, soft band
+    stageCtx.strokeStyle = "rgba(19, 66, 255, " + (0.08 + breathe + 0.20 * glow).toFixed(3) + ")";
+    stageCtx.lineWidth = 1 + 0.6 * glow;
+    stageCtx.shadowColor = "rgba(19, 66, 255, 0.45)";
+    stageCtx.shadowBlur = 26 * glow;
+    stageCtx.beginPath();
+    stageCtx.moveTo(l[0], l[1]);
+    stageCtx.lineTo(r[0], r[1]);
+    stageCtx.stroke();
+  }
+  stageCtx.shadowBlur = 0;
+  stageCtx.restore();
+
+  // contact shadow grounding the model on the floor
+  const rx = Math.min(w * 0.22, 200);
+  const ry = rx * 0.16;
+  stageCtx.save();
+  const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, rx);
+  contact.addColorStop(0, "rgba(19, 66, 255, 0.22)");
+  contact.addColorStop(1, "rgba(19, 66, 255, 0)");
+  stageCtx.fillStyle = contact;
+  stageCtx.beginPath();
+  stageCtx.ellipse(cx, floorY, rx, ry, 0, 0, Math.PI * 2);
+  stageCtx.fill();
+  stageCtx.restore();
+
+  // ---- Model placeholder (stands on the podium) ----
   stageCtx.save();
   stageCtx.translate(cx, base);
 
@@ -954,7 +1009,7 @@ function drawStage() {
   stageCtx.shadowColor = "transparent";
   stageCtx.fillStyle = "rgba(0, 0, 0, 0.50)";
   stageCtx.font = "800 12px \"Avenir Next\", \"Nunito\", ui-sans-serif, system-ui";
-  stageCtx.fillText("large stage-first character preview", 24, h - 24);
+  stageCtx.fillText("drag to orbit · scroll to zoom · 3d stage preview", 24, h - 24);
 }
 
 function drawCamera() {
@@ -1021,7 +1076,6 @@ function setAvatar(avatar) {
   document.querySelectorAll(".avatar-card").forEach(card => {
     card.classList.toggle("active", card.dataset.avatar === avatar);
   });
-  drawStage();
 }
 
 document.querySelectorAll(".avatar-card").forEach(card => {
@@ -1069,13 +1123,15 @@ document.querySelectorAll(".panel-slider input").forEach(input => {
   });
 });
 
-window.addEventListener("resize", () => {
-  drawStage();
-  drawCamera();
-});
+window.addEventListener("resize", drawCamera);
 
-drawStage();
+function loop(now) {
+  drawStage(now);
+  requestAnimationFrame(loop);
+}
+
 drawCamera();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
