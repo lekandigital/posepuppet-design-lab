@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>PosePuppet Playful Toy Studio UI Mockup</title>
 <style>
 :root {
@@ -635,146 +635,155 @@ option {
   color: var(--muted);
 }
 
+/* ---- Tablet / small screens: stack the workspace vertically ---- */
 @media (max-width: 980px) {
   html,
   body {
-    overflow: auto;
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   body {
     display: block;
   }
 
+  /* Sticky, single-column header: brand row, mode tabs, then controls */
   #topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
     grid-template-columns: 1fr;
-    align-items: start;
+    grid-template-areas:
+      "brand"
+      "tabs"
+      "controls";
+    align-items: center;
+    gap: 10px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   }
 
-  .telemetry,
+  .brand { grid-area: brand; }
+
+  .mode-tabs {
+    grid-area: tabs;
+    width: 100%;
+  }
+
+  .mode-tabs button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* The "local / 0 external requests" readout is mirrored in the status bar */
+  .telemetry { display: none; }
+
   .controls {
-    justify-content: flex-start;
+    grid-area: controls;
+    justify-content: center;
     flex-wrap: wrap;
   }
 
   #workspace {
-    grid-template-columns: 1fr;
-    min-height: 1000px;
+    display: block;
+  }
+
+  /* Stage is position:relative with absolutely-positioned children, so it
+     needs an explicit height once it is no longer a grid track. */
+  #stage-area {
+    height: 58vh;
+    min-height: 340px;
+    border-right: 0;
+    border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
   }
 
   #camera-card {
-    width: 260px;
-    left: 24px;
-    bottom: 24px;
+    width: 150px;
+    left: 16px;
+    bottom: 16px;
   }
 
-  #side-panel {
-    min-height: 640px;
-  }
+  #camera-canvas { height: 96px; }
+
+  #side-panel { min-height: 0; }
 
   #panel {
     position: static;
     width: auto;
+    max-height: none;
     margin: 12px;
+  }
+
+}
+
+/* ---- Phones: tighten spacing, enlarge tap targets, wrap the status bar ---- */
+@media (max-width: 600px) {
+  #topbar { padding: max(10px, env(safe-area-inset-top)) 12px 10px; }
+
+  .brand-name { font-size: 18px; }
+
+  button,
+  select {
+    min-height: 40px;
+  }
+
+  .controls button {
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+
+  #stage-area {
+    height: 52vh;
+    min-height: 300px;
+  }
+
+  #camera-card { width: 128px; }
+  #camera-canvas { height: 84px; }
+
+  /* Avatars become a horizontal, scroll-snapping carousel so the panel
+     stays short no matter how many avatars exist. The clipped last card
+     peeks to signal that the row scrolls. */
+  .avatar-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* let the cards' shadow/active ring breathe without clipping */
+    margin: 0 -12px;
+    padding: 4px 12px 8px;
+  }
+
+  .avatar-grid::-webkit-scrollbar { display: none; }
+
+  .avatar-card {
+    flex: 0 0 132px;
+    scroll-snap-align: start;
+  }
+
+  #statusbar {
+    grid-template-columns: 1fr;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .status-left {
+    flex-wrap: wrap;
+    font-size: 10px;
+  }
+
+  .status-right {
+    justify-content: flex-start;
+    padding-top: 0;
   }
 }
 
 /* ---- Theme picker ---- */
 #theme-btn { font-weight: 800; }
-
-#theme-pop {
-  position: fixed;
-  top: 60px;
-  right: 14px;
-  z-index: 40;
-  width: 248px;
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.94);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border: 2px solid rgba(var(--accent-rgb), 0.20);
-  box-shadow: var(--card-shadow);
-}
-
-#theme-pop.hidden { display: none; }
-
-.theme-pop-title {
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.swatch-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 9px;
-}
-
-.swatch {
-  width: 22px;
-  height: 22px;
-  min-height: 0;
-  padding: 0;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
-  transition: transform 120ms ease;
-}
-
-.swatch:hover { transform: translateY(0) scale(1.14); }
-
-.swatch.is-on {
-  box-shadow: 0 0 0 2px var(--white), 0 0 0 4px currentColor;
-}
-
-.theme-divider {
-  height: 1px;
-  background: rgba(var(--accent-rgb), 0.16);
-  margin: 1px 0;
-}
-
-.set-list { display: grid; gap: 8px; }
-
-.set-chip {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 0;
-  padding: 7px 9px;
-  border-radius: 14px;
-  border: 2px solid rgba(var(--accent-rgb), 0.16);
-  background: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  text-align: left;
-}
-
-.set-chip .sw {
-  width: 42px;
-  height: 18px;
-  border-radius: 7px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  flex: 0 0 auto;
-}
-
-.set-chip .nm {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--ink-strong);
-}
-
-.set-chip.is-on {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.14);
-}
 
 </style>
 </head>
@@ -948,14 +957,6 @@ option {
   <div class="panel-row"><button>clear calib</button><button>reset defaults</button></div>
 </div>
 
-<div id="theme-pop" class="hidden" aria-label="theme picker">
-  <div class="theme-pop-title">accent · 14 hues</div>
-  <div class="swatch-grid" id="swatch-grid"></div>
-  <div class="theme-divider"></div>
-  <div class="theme-pop-title">full palettes · 20 sets</div>
-  <div class="set-list" id="set-list"></div>
-</div>
-
 <script>
 /* ============================================================
    THEME ENGINE
@@ -963,26 +964,6 @@ option {
    resolves to one of these tokens, so swapping a palette is a
    single applyTheme() call.
    ============================================================ */
-
-// 14 accent hues — these keep the clean neutral (white/near-black) palette
-// and only swap the vivid accent + its derived tints. rgb arrays so the
-// build-time colour refactor never touches them.
-const ACCENTS = [
-  { name: "cobalt",    rgb: [ 19,  66, 255] },
-  { name: "bubblegum", rgb: [255,  93, 143] },
-  { name: "indigo",    rgb: [ 79,  70, 229] },
-  { name: "violet",    rgb: [124,  58, 237] },
-  { name: "fuchsia",   rgb: [192,  38, 211] },
-  { name: "magenta",   rgb: [219,  39, 119] },
-  { name: "crimson",   rgb: [225,  29,  72] },
-  { name: "red",       rgb: [220,  38,  38] },
-  { name: "tangerine", rgb: [234,  88,  12] },
-  { name: "amber",     rgb: [180,  83,   9] },
-  { name: "emerald",   rgb: [  5, 150, 105] },
-  { name: "teal",      rgb: [ 13, 148, 136] },
-  { name: "sky",       rgb: [  2, 132, 199] },
-  { name: "lime",      rgb: [ 77, 124,  15] }
-];
 
 const WHITE = [255, 255, 255], BLACK = [0, 0, 0];
 const mix = (c, t, k) => c.map((v, i) => Math.round(v + (t[i] - v) * k));
@@ -1023,97 +1004,14 @@ function theme(rgb, rgb2, rgb3, over) {
 const neutral = (rgb) => theme(rgb);
 const palette = (rgb, over) => theme(rgb, null, null, over);
 
-const SETS = [
+// The curated palette ring. The theme button cycles through these in order.
+// cobalt / black / bubblegum are clean mono (neutral) palettes; the rest are
+// tinted-paper palettes built from a single hue.
+const THEMES = [
+  { name: "cobalt", theme: neutral([19, 66, 255]) },
+  { name: "black",  theme: neutral([0, 0, 0]) },
   {
-    name: "Sunset Clay",
-    theme: palette([226, 100, 60], {
-      page1: "#fdf6f0", page2: "#f7e7da", stageBg: "#fff7f1", white: "#fffaf5",
-      tint1: "#f4d6c3", tint2: "#fceadf", tint3: "#f7e0d0",
-      ink: "#3a2118", inkStrong: "#2a1812", muted: "rgba(58, 33, 24, 0.55)"
-    })
-  },
-  {
-    name: "Forest Studio",
-    theme: palette([16, 130, 92], {
-      page1: "#f3f7f3", page2: "#e4efe7", stageBg: "#f5faf6", white: "#fbfdfb",
-      tint1: "#cce6d4", tint2: "#e8f3eb", tint3: "#daecde",
-      ink: "#16261d", inkStrong: "#0f1d16", muted: "rgba(22, 38, 29, 0.55)"
-    })
-  },
-  {
-    name: "Orchid Dusk",
-    theme: palette([156, 52, 168], {
-      page1: "#f8f2fb", page2: "#ece0f3", stageBg: "#f8f1fc", white: "#fdfafe",
-      tint1: "#e4d2ef", tint2: "#f0e6f7", tint3: "#e9d8f1",
-      ink: "#251434", inkStrong: "#1b0e27", muted: "rgba(37, 20, 52, 0.55)"
-    })
-  },
-  {
-    name: "Desert Sand",
-    theme: palette([197, 121, 38], {
-      page1: "#faf6ee", page2: "#f1e8d6", stageBg: "#faf5ea", white: "#fffdf7",
-      tint1: "#ecdcc0", tint2: "#f6eede", tint3: "#f0e4cc",
-      ink: "#36291a", inkStrong: "#271c10", muted: "rgba(54, 41, 26, 0.55)"
-    })
-  },
-  {
-    name: "Glacier",
-    theme: palette([21, 140, 176], {
-      page1: "#f1f6f9", page2: "#e1edf2", stageBg: "#f2f8fb", white: "#fbfdfe",
-      tint1: "#c7e1ec", tint2: "#e6f1f6", tint3: "#d8e9f0",
-      ink: "#11272f", inkStrong: "#0a1c23", muted: "rgba(17, 39, 47, 0.55)"
-    })
-  },
-  {
-    name: "Rose Quartz",
-    theme: palette([214, 51, 108], {
-      page1: "#fdf3f6", page2: "#f7e2ea", stageBg: "#fdf2f6", white: "#fffafc",
-      tint1: "#f4cdda", tint2: "#fbe6ee", tint3: "#f6d8e3",
-      ink: "#3a1622", inkStrong: "#2b0f19", muted: "rgba(58, 22, 34, 0.55)"
-    })
-  },
-  {
-    name: "Matcha",
-    theme: palette([101, 143, 28], {
-      page1: "#f7f8ee", page2: "#ecf0d8", stageBg: "#f8faef", white: "#fdfdf6",
-      tint1: "#dbe6b6", tint2: "#f0f4dd", tint3: "#e6edc9",
-      ink: "#2b3115", inkStrong: "#1f240e", muted: "rgba(43, 49, 21, 0.55)"
-    })
-  },
-  {
-    name: "Lavender Field",
-    theme: palette([99, 82, 216], {
-      page1: "#f5f4fc", page2: "#e8e6f8", stageBg: "#f6f4fd", white: "#fcfbff",
-      tint1: "#d8d3f1", tint2: "#ece9f9", tint3: "#e0dcf4",
-      ink: "#211a3a", inkStrong: "#18122b", muted: "rgba(33, 26, 58, 0.55)"
-    })
-  },
-  {
-    name: "Coral Reef",
-    theme: palette([240, 90, 90], {
-      page1: "#fdf4f1", page2: "#f9e3dc", stageBg: "#fff5f1", white: "#fffaf8",
-      tint1: "#f6cfc4", tint2: "#fce8e1", tint3: "#f8dad0",
-      ink: "#3a1d18", inkStrong: "#2b1410", muted: "rgba(58, 29, 24, 0.55)"
-    })
-  },
-  {
-    name: "Deep Sea",
-    theme: palette([14, 94, 110], {
-      page1: "#f0f5f6", page2: "#ddebee", stageBg: "#f1f7f8", white: "#fafdfd",
-      tint1: "#c2dee2", tint2: "#e4f0f2", tint3: "#d4e7ea",
-      ink: "#0e2429", inkStrong: "#08191d", muted: "rgba(14, 36, 41, 0.55)"
-    })
-  },
-  {
-    name: "Plum Wine",
-    theme: palette([150, 34, 68], {
-      page1: "#fbf2f4", page2: "#f3e0e5", stageBg: "#fcf1f4", white: "#fffafb",
-      tint1: "#ecccd5", tint2: "#f8e4e9", tint3: "#f2d6dd",
-      ink: "#34151e", inkStrong: "#260e15", muted: "rgba(52, 21, 30, 0.55)"
-    })
-  },
-  {
-    name: "Honey Gold",
+    name: "honey gold",
     theme: palette([203, 148, 20], {
       page1: "#fdf8ec", page2: "#f5ebcf", stageBg: "#fdf7e8", white: "#fffdf4",
       tint1: "#efddb0", tint2: "#f9f0d6", tint3: "#f4e7c4",
@@ -1121,75 +1019,43 @@ const SETS = [
     })
   },
   {
-    name: "Steel Sky",
-    theme: palette([52, 96, 160], {
-      page1: "#f2f5f9", page2: "#e3eaf3", stageBg: "#f3f6fa", white: "#fbfcfe",
-      tint1: "#cddaeb", tint2: "#e7eef6", tint3: "#d9e3f0",
-      ink: "#18222f", inkStrong: "#101824", muted: "rgba(24, 34, 47, 0.55)"
-    })
-  },
-
-  /* ---- Multi-colour palettes: three differing hues, not shades of one ---- */
-  {
-    name: "Toy Studio",
-    theme: theme([255, 125, 111], [47, 176, 163], [242, 180, 65], {
-      page1: "#fff8ee", page2: "#fff1df", stageBg: "#fff7ea", white: "#fffdf9",
-      tint1: "#ffe2d6", tint2: "#fff1e6", tint3: "#ffe8d9",
-      ink: "#3d2b29", inkStrong: "#2d1e1c", muted: "rgba(61, 43, 41, 0.55)"
+    name: "plum wine",
+    theme: palette([150, 34, 68], {
+      page1: "#fbf2f4", page2: "#f3e0e5", stageBg: "#fcf1f4", white: "#fffafb",
+      tint1: "#ecccd5", tint2: "#f8e4e9", tint3: "#f2d6dd",
+      ink: "#34151e", inkStrong: "#260e15", muted: "rgba(52, 21, 30, 0.55)"
     })
   },
   {
-    name: "Fiesta",
-    theme: theme([230, 58, 120], [23, 179, 163], [245, 184, 30], {
-      page1: "#fdf6f4", page2: "#f8e9ea", stageBg: "#fdf5f3", white: "#fffafb",
-      tint1: "#f7d8df", tint2: "#fbeaed", tint3: "#f7dee2",
-      ink: "#361426", inkStrong: "#280d1b", muted: "rgba(54, 20, 38, 0.55)"
+    name: "matcha",
+    theme: palette([101, 143, 28], {
+      page1: "#f7f8ee", page2: "#ecf0d8", stageBg: "#f8faef", white: "#fdfdf6",
+      tint1: "#dbe6b6", tint2: "#f0f4dd", tint3: "#e6edc9",
+      ink: "#2b3115", inkStrong: "#1f240e", muted: "rgba(43, 49, 21, 0.55)"
     })
   },
   {
-    name: "Retro Pop",
-    theme: theme([242, 107, 58], [42, 157, 181], [232, 181, 58], {
-      page1: "#fbf5ea", page2: "#f3e7d3", stageBg: "#fcf6ec", white: "#fffdf6",
-      tint1: "#f3ddc6", tint2: "#f8eede", tint3: "#f3e3cb",
-      ink: "#2c2118", inkStrong: "#1f1710", muted: "rgba(44, 33, 24, 0.55)"
+    name: "desert sand",
+    theme: palette([197, 121, 38], {
+      page1: "#faf6ee", page2: "#f1e8d6", stageBg: "#faf5ea", white: "#fffdf7",
+      tint1: "#ecdcc0", tint2: "#f6eede", tint3: "#f0e4cc",
+      ink: "#36291a", inkStrong: "#271c10", muted: "rgba(54, 41, 26, 0.55)"
     })
   },
   {
-    name: "Berry Bliss",
-    theme: theme([214, 51, 108], [125, 79, 158], [255, 138, 107], {
-      page1: "#fdf4f8", page2: "#f4e3ee", stageBg: "#fdf3f8", white: "#fffafc",
-      tint1: "#f2d2e1", tint2: "#fae6f0", tint3: "#f3d8e6",
-      ink: "#341325", inkStrong: "#260c1a", muted: "rgba(52, 19, 37, 0.55)"
+    name: "sunset clay",
+    theme: palette([226, 100, 60], {
+      page1: "#fdf6f0", page2: "#f7e7da", stageBg: "#fff7f1", white: "#fffaf5",
+      tint1: "#f4d6c3", tint2: "#fceadf", tint3: "#f7e0d0",
+      ink: "#3a2118", inkStrong: "#2a1812", muted: "rgba(58, 33, 24, 0.55)"
     })
   },
-  {
-    name: "Tropical",
-    theme: theme([18, 170, 120], [251, 113, 133], [245, 158, 11], {
-      page1: "#f2faf5", page2: "#e2f1e8", stageBg: "#f3faf6", white: "#f9fefb",
-      tint1: "#cfeadb", tint2: "#e8f6ee", tint3: "#dbf0e4",
-      ink: "#123326", inkStrong: "#0b251a", muted: "rgba(18, 51, 38, 0.55)"
-    })
-  },
-  {
-    name: "Sunset Beach",
-    theme: theme([255, 107, 107], [255, 166, 43], [108, 92, 231], {
-      page1: "#fff5ef", page2: "#ffe7da", stageBg: "#fff5ee", white: "#fffbf8",
-      tint1: "#ffd7c6", tint2: "#ffe9de", tint3: "#ffdfcf",
-      ink: "#2d1b2e", inkStrong: "#1f1020", muted: "rgba(45, 27, 46, 0.55)"
-    })
-  },
-  {
-    name: "Cobalt Carnival",
-    theme: theme([59, 91, 219], [255, 107, 107], [252, 196, 25], {
-      page1: "#f5f7fd", page2: "#e6ebf8", stageBg: "#f6f8fd", white: "#fbfcff",
-      tint1: "#d6def6", tint2: "#e9eef9", tint3: "#dde4f4",
-      ink: "#1a2238", inkStrong: "#111729", muted: "rgba(26, 34, 56, 0.55)"
-    })
-  }
+  { name: "bubblegum", theme: neutral([255, 93, 143]) }
 ];
 
-// Live theme object the canvases read from. Initialised to the first accent.
-let T = neutral(ACCENTS[0].rgb);
+// Live theme object the canvases read from. Initialised to the first theme.
+let T = THEMES[0].theme;
+let themeIdx = 0;
 
 function applyTheme(t, label) {
   T = t;
@@ -1206,48 +1072,6 @@ function applyTheme(t, label) {
   for (const k in set) s.setProperty(k, set[k]);
   if (label) document.getElementById("theme-btn").textContent = "🎨 " + label;
   drawCamera();
-}
-
-// Build the picker UI.
-function buildThemePicker() {
-  const grid = document.getElementById("swatch-grid");
-  ACCENTS.forEach((a, i) => {
-    const b = document.createElement("button");
-    b.className = "swatch" + (i === 0 ? " is-on" : "");
-    b.style.background = toHex(a.rgb);
-    b.style.color = toHex(a.rgb);
-    b.title = a.name;
-    b.addEventListener("click", () => {
-      applyTheme(neutral(a.rgb), a.name);
-      markActive(b);
-    });
-    grid.appendChild(b);
-  });
-
-  const list = document.getElementById("set-list");
-  SETS.forEach(s => {
-    const b = document.createElement("button");
-    b.className = "set-chip";
-    const sw = document.createElement("span");
-    sw.className = "sw";
-    sw.style.background = "linear-gradient(135deg, " + s.theme.accentLight + " 0%, " +
-      s.theme.accent + " 42%, " + s.theme.accent2 + " 74%, " + s.theme.accent3 + " 100%)";
-    const nm = document.createElement("span");
-    nm.className = "nm";
-    nm.textContent = s.name;
-    b.append(sw, nm);
-    b.addEventListener("click", () => {
-      applyTheme(s.theme, s.name);
-      markActive(b);
-    });
-    list.appendChild(b);
-  });
-}
-
-function markActive(el) {
-  document.querySelectorAll(".swatch.is-on, .set-chip.is-on")
-    .forEach(n => n.classList.remove("is-on"));
-  el.classList.add("is-on");
 }
 
 const state = {
@@ -1561,24 +1385,16 @@ document.querySelectorAll(".panel-slider input").forEach(input => {
 
 window.addEventListener("resize", drawCamera);
 
-// ---- Theme picker wiring ----
-const themePop = document.getElementById("theme-pop");
+// ---- Theme cycling ----
+// The theme button steps to the next palette in the THEMES ring.
 const themeBtn = document.getElementById("theme-btn");
 
-themeBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  themePop.classList.toggle("hidden");
+themeBtn.addEventListener("click", () => {
+  themeIdx = (themeIdx + 1) % THEMES.length;
+  applyTheme(THEMES[themeIdx].theme, THEMES[themeIdx].name);
 });
 
-document.addEventListener("click", (e) => {
-  if (!themePop.classList.contains("hidden") &&
-      !themePop.contains(e.target) && e.target !== themeBtn) {
-    themePop.classList.add("hidden");
-  }
-});
-
-buildThemePicker();
-applyTheme(neutral(ACCENTS[0].rgb), ACCENTS[0].name);
+applyTheme(THEMES[0].theme, THEMES[0].name);
 
 function loop(now) {
   drawStage(now);
