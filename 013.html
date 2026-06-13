@@ -22,6 +22,15 @@
   --accent-dark: 10, 40, 180;     /* shadow / pressed     */
   --accent: rgb(19, 66, 255);     /* solid accent         */
   --accent-light: rgb(77, 108, 255); /* gradient highlight */
+
+  /* secondary + tertiary accents — equal to the primary in mono palettes,
+     distinct hues in the multi-colour palettes */
+  --accent-2-rgb: 19, 66, 255;
+  --accent-2: rgb(19, 66, 255);
+  --accent-2-light: rgb(77, 108, 255);
+  --accent-3-rgb: 19, 66, 255;
+  --accent-3: rgb(19, 66, 255);
+
   --tint-1: rgb(230, 235, 255);   /* chips / fills        */
   --tint-2: rgb(244, 246, 255);   /* lightest surface     */
   --tint-3: rgb(232, 236, 255);   /* button gradient foot */
@@ -34,7 +43,7 @@
   --radius-sm: 14px;
   --radius-md: 22px;
   --radius-lg: 30px;
-  --focus: 0 0 0 3px rgba(var(--accent-rgb), 0.28);
+  --focus: 0 0 0 3px rgba(var(--accent-2-rgb), 0.28);
 }
 
 *,
@@ -117,10 +126,10 @@ input:focus-visible {
 }
 
 button.active {
-  background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
+  background: linear-gradient(180deg, var(--accent-2-light) 0%, var(--accent-2) 100%);
   color: var(--white);
-  border-color: rgba(var(--accent-rgb), 0.40);
-  box-shadow: 0 4px 0 rgba(var(--accent-dark), 0.65), 0 12px 18px rgba(var(--accent-rgb), 0.22);
+  border-color: rgba(var(--accent-2-rgb), 0.40);
+  box-shadow: 0 4px 0 rgba(var(--accent-2-rgb), 0.55), 0 12px 18px rgba(var(--accent-2-rgb), 0.22);
 }
 
 #topbar {
@@ -181,7 +190,7 @@ button.active {
 }
 
 .telemetry span:first-child {
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 .controls {
@@ -348,7 +357,7 @@ button.active {
 }
 
 .camera-card-head span:last-child {
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 .camera-card-foot {
@@ -415,8 +424,8 @@ button.active {
 }
 
 .avatar-card.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.12), var(--card-shadow-soft);
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 5px rgba(var(--accent-2-rgb), 0.12), var(--card-shadow-soft);
 }
 
 .avatar-icon {
@@ -424,7 +433,7 @@ button.active {
   display: grid;
   place-items: center;
   font-size: 18px;
-  color: var(--accent);
+  color: var(--accent-3);
 }
 
 .avatar-name {
@@ -470,7 +479,7 @@ input[type="range"] {
 input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: var(--accent);
+  accent-color: var(--accent-2);
 }
 
 .coach-title {
@@ -486,8 +495,8 @@ input[type="checkbox"] {
   display: inline-block;
   padding: 5px 8px;
   border-radius: 999px;
-  background: rgba(var(--accent-rgb), 0.10);
-  color: var(--accent);
+  background: rgba(var(--accent-3-rgb), 0.16);
+  color: var(--ink-strong);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -564,7 +573,7 @@ option {
 }
 
 .status-right {
-  color: var(--accent);
+  color: var(--accent-2);
   font-weight: 800;
 }
 
@@ -942,7 +951,7 @@ option {
   <div class="theme-pop-title">accent · 13 hues</div>
   <div class="swatch-grid" id="swatch-grid"></div>
   <div class="theme-divider"></div>
-  <div class="theme-pop-title">full palettes · 13 sets</div>
+  <div class="theme-pop-title">full palettes · 21 sets</div>
   <div class="set-list" id="set-list"></div>
 </div>
 
@@ -978,28 +987,39 @@ const mix = (c, t, k) => c.map((v, i) => Math.round(v + (t[i] - v) * k));
 const toHex = (a) => "#" + a.map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, "0")).join("");
 const toRgb = (a) => a[0] + ", " + a[1] + ", " + a[2];
 
-// Neutral theme: clean editorial palette, one vivid accent.
-function neutral(rgb) {
-  return {
-    accentRgb:  toRgb(rgb),
-    accentDark: toRgb(mix(rgb, BLACK, 0.32)),
-    accent:     toHex(rgb),
-    accentLight:toHex(mix(rgb, WHITE, 0.30)),
-    tint1:      toHex(mix(rgb, WHITE, 0.88)),
-    tint2:      toHex(mix(rgb, WHITE, 0.955)),
-    tint3:      toHex(mix(rgb, WHITE, 0.91)),
-    page1:      "#fbfbfb",
-    page2:      toHex(mix(rgb, WHITE, 0.955)),
-    white:      "#ffffff",
-    stageBg:    "#ffffff",
-    ink:        "#111111",
-    inkStrong:  "#111111",
-    muted:      "rgba(0, 0, 0, 0.5)"
-  };
+// Build a theme from up to three accent hues. rgb2/rgb3 default to the
+// primary, so a single-hue call yields the clean mono palette; passing
+// distinct hues yields a multi-colour palette (secondary + tertiary accents).
+function theme(rgb, rgb2, rgb3, over) {
+  rgb2 = rgb2 || rgb;
+  rgb3 = rgb3 || rgb;
+  return Object.assign({
+    accentRgb:   toRgb(rgb),
+    accentDark:  toRgb(mix(rgb, BLACK, 0.32)),
+    accent:      toHex(rgb),
+    accentLight: toHex(mix(rgb, WHITE, 0.30)),
+    accent2Rgb:  toRgb(rgb2),
+    accent2:     toHex(rgb2),
+    accent2Light:toHex(mix(rgb2, WHITE, 0.30)),
+    accent3Rgb:  toRgb(rgb3),
+    accent3:     toHex(rgb3),
+    tint1:       toHex(mix(rgb, WHITE, 0.88)),
+    tint2:       toHex(mix(rgb, WHITE, 0.955)),
+    tint3:       toHex(mix(rgb, WHITE, 0.91)),
+    tintB:       toHex(mix(rgb2, WHITE, 0.84)),  // light wash of the secondary
+    page1:       "#fbfbfb",
+    page2:       toHex(mix(rgb, WHITE, 0.955)),
+    white:       "#ffffff",
+    stageBg:     "#ffffff",
+    ink:         "#111111",
+    inkStrong:   "#111111",
+    muted:       "rgba(0, 0, 0, 0.5)"
+  }, over);
 }
 
-// Full palettes: not neutral — tinted paper, coloured ink, warm/cool surfaces.
-const palette = (rgb, over) => Object.assign(neutral(rgb), over);
+// Mono helpers (one hue): the editorial neutral and the tinted-paper palettes.
+const neutral = (rgb) => theme(rgb);
+const palette = (rgb, over) => theme(rgb, null, null, over);
 
 const SETS = [
   {
@@ -1105,6 +1125,72 @@ const SETS = [
       tint1: "#cddaeb", tint2: "#e7eef6", tint3: "#d9e3f0",
       ink: "#18222f", inkStrong: "#101824", muted: "rgba(24, 34, 47, 0.55)"
     })
+  },
+
+  /* ---- Multi-colour palettes: three differing hues, not shades of one ---- */
+  {
+    name: "Toy Studio",
+    theme: theme([255, 125, 111], [47, 176, 163], [242, 180, 65], {
+      page1: "#fff8ee", page2: "#fff1df", stageBg: "#fff7ea", white: "#fffdf9",
+      tint1: "#ffe2d6", tint2: "#fff1e6", tint3: "#ffe8d9",
+      ink: "#3d2b29", inkStrong: "#2d1e1c", muted: "rgba(61, 43, 41, 0.55)"
+    })
+  },
+  {
+    name: "Fiesta",
+    theme: theme([230, 58, 120], [23, 179, 163], [245, 184, 30], {
+      page1: "#fdf6f4", page2: "#f8e9ea", stageBg: "#fdf5f3", white: "#fffafb",
+      tint1: "#f7d8df", tint2: "#fbeaed", tint3: "#f7dee2",
+      ink: "#361426", inkStrong: "#280d1b", muted: "rgba(54, 20, 38, 0.55)"
+    })
+  },
+  {
+    name: "Retro Pop",
+    theme: theme([242, 107, 58], [42, 157, 181], [232, 181, 58], {
+      page1: "#fbf5ea", page2: "#f3e7d3", stageBg: "#fcf6ec", white: "#fffdf6",
+      tint1: "#f3ddc6", tint2: "#f8eede", tint3: "#f3e3cb",
+      ink: "#2c2118", inkStrong: "#1f1710", muted: "rgba(44, 33, 24, 0.55)"
+    })
+  },
+  {
+    name: "Berry Bliss",
+    theme: theme([214, 51, 108], [125, 79, 158], [255, 138, 107], {
+      page1: "#fdf4f8", page2: "#f4e3ee", stageBg: "#fdf3f8", white: "#fffafc",
+      tint1: "#f2d2e1", tint2: "#fae6f0", tint3: "#f3d8e6",
+      ink: "#341325", inkStrong: "#260c1a", muted: "rgba(52, 19, 37, 0.55)"
+    })
+  },
+  {
+    name: "Tropical",
+    theme: theme([18, 170, 120], [251, 113, 133], [245, 158, 11], {
+      page1: "#f2faf5", page2: "#e2f1e8", stageBg: "#f3faf6", white: "#f9fefb",
+      tint1: "#cfeadb", tint2: "#e8f6ee", tint3: "#dbf0e4",
+      ink: "#123326", inkStrong: "#0b251a", muted: "rgba(18, 51, 38, 0.55)"
+    })
+  },
+  {
+    name: "Sunset Beach",
+    theme: theme([255, 107, 107], [255, 166, 43], [108, 92, 231], {
+      page1: "#fff5ef", page2: "#ffe7da", stageBg: "#fff5ee", white: "#fffbf8",
+      tint1: "#ffd7c6", tint2: "#ffe9de", tint3: "#ffdfcf",
+      ink: "#2d1b2e", inkStrong: "#1f1020", muted: "rgba(45, 27, 46, 0.55)"
+    })
+  },
+  {
+    name: "Bubblegum",
+    theme: theme([255, 93, 143], [56, 189, 248], [52, 211, 153], {
+      page1: "#fdf4f8", page2: "#f6e4ee", stageBg: "#fdf3f8", white: "#fffafc",
+      tint1: "#f6d3e2", tint2: "#fbe7f0", tint3: "#f6dae6",
+      ink: "#33203a", inkStrong: "#25132c", muted: "rgba(51, 32, 58, 0.55)"
+    })
+  },
+  {
+    name: "Cobalt Carnival",
+    theme: theme([59, 91, 219], [255, 107, 107], [252, 196, 25], {
+      page1: "#f5f7fd", page2: "#e6ebf8", stageBg: "#f6f8fd", white: "#fbfcff",
+      tint1: "#d6def6", tint2: "#e9eef9", tint3: "#dde4f4",
+      ink: "#1a2238", inkStrong: "#111729", muted: "rgba(26, 34, 56, 0.55)"
+    })
   }
 ];
 
@@ -1117,6 +1203,8 @@ function applyTheme(t, label) {
   const set = {
     "--accent-rgb": t.accentRgb, "--accent-dark": t.accentDark,
     "--accent": t.accent, "--accent-light": t.accentLight,
+    "--accent-2-rgb": t.accent2Rgb, "--accent-2": t.accent2, "--accent-2-light": t.accent2Light,
+    "--accent-3-rgb": t.accent3Rgb, "--accent-3": t.accent3,
     "--tint-1": t.tint1, "--tint-2": t.tint2, "--tint-3": t.tint3,
     "--page-1": t.page1, "--page-2": t.page2, "--white": t.white,
     "--ink": t.ink, "--ink-strong": t.inkStrong, "--muted": t.muted
@@ -1148,7 +1236,8 @@ function buildThemePicker() {
     b.className = "set-chip";
     const sw = document.createElement("span");
     sw.className = "sw";
-    sw.style.background = "linear-gradient(180deg, " + s.theme.accentLight + " 0%, " + s.theme.accent + " 100%)";
+    sw.style.background = "linear-gradient(135deg, " + s.theme.accentLight + " 0%, " +
+      s.theme.accent + " 42%, " + s.theme.accent2 + " 74%, " + s.theme.accent3 + " 100%)";
     const nm = document.createElement("span");
     nm.className = "nm";
     nm.textContent = s.name;
@@ -1328,7 +1417,7 @@ function drawStage(now) {
   stageCtx.fillStyle = T.tint1;
   rect(-44, -195, 88, 105);
 
-  stageCtx.fillStyle = T.tint2;
+  stageCtx.fillStyle = T.tintB;
   rect(-13, -168, 26, 34);
 
   stageCtx.fillStyle = T.tint1;
