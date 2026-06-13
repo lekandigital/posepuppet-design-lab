@@ -38,8 +38,13 @@
   --bg-cream: var(--page-1);
 
   --button-shadow: 0 4px 0 rgba(var(--accent-rgb), 0.55), 0 10px 18px rgba(var(--accent-rgb), 0.10);
-  --card-shadow: 0 16px 30px rgba(var(--accent-rgb), 0.12);
-  --card-shadow-soft: 0 8px 18px rgba(var(--accent-rgb), 0.08);
+  /* Surfaces get neutral depth — only the toy buttons keep the coloured shadow. */
+  --card-shadow: 0 16px 34px rgba(17, 18, 27, 0.13);
+  --card-shadow-soft: 0 8px 20px rgba(17, 18, 27, 0.09);
+
+  /* Neutral hairline borders for surfaces; the accent is reserved for the buttons. */
+  --border: rgba(17, 18, 27, 0.10);
+  --border-strong: rgba(17, 18, 27, 0.14);
   --radius-sm: 14px;
   --radius-md: 22px;
   --radius-lg: 30px;
@@ -79,11 +84,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.55), transparent 34%),
-    linear-gradient(rgba(var(--accent-rgb),0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--accent-rgb),0.06) 1px, transparent 1px);
-  background-size: auto, 36px 36px, 36px 36px;
-  opacity: 0.5;
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.55), transparent 34%);
+  opacity: 0.6;
   z-index: -1;
 }
 
@@ -139,8 +141,8 @@ button.active {
   gap: 12px;
   padding: 12px 14px;
   background: rgba(255, 255, 255, 0.78);
-  border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
-  box-shadow: 0 8px 18px rgba(var(--accent-rgb), 0.06);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 18px rgba(17, 18, 27, 0.05);
 }
 
 .brand {
@@ -158,7 +160,7 @@ button.active {
 }
 
 .small-key {
-  border: 2px solid rgba(var(--accent-rgb), 0.16);
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 3px 7px;
   font-size: 10px;
@@ -187,6 +189,10 @@ button.active {
   color: var(--muted);
   white-space: nowrap;
   font-weight: 700;
+  /* Lowest-priority readout (also shown in the status bar) — let it collapse
+     first so the topbar never forces the page wider than the viewport. */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .telemetry span:first-child {
@@ -222,7 +228,7 @@ button.active {
   background:
     linear-gradient(180deg, var(--tint-2) 0%, var(--page-1) 70%),
     var(--bg-cream);
-  border-right: 2px solid rgba(var(--accent-rgb), 0.16);
+  border-right: 1px solid var(--border);
 }
 
 .stage-frame {
@@ -234,8 +240,8 @@ button.active {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 100%);
   backdrop-filter: blur(14px) saturate(1.3);
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  border: 3px solid rgba(var(--accent-rgb), 0.22);
-  box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.45), var(--card-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.4), var(--card-shadow);
 }
 
 .stage-frame::before {
@@ -272,54 +278,17 @@ button.active {
   padding: 7px 11px;
   border-radius: 999px;
   background: rgba(255,255,255,0.78);
-  border: 2px solid rgba(var(--accent-rgb), 0.16);
+  border: 1px solid var(--border);
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  box-shadow: 0 6px 14px rgba(var(--accent-rgb), 0.08);
+  box-shadow: 0 6px 14px rgba(17, 18, 27, 0.08);
 }
 
 .stage-label strong {
   color: var(--ink-strong);
-}
-
-.corner {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border-style: solid;
-  border-color: var(--accent);
-  z-index: 3;
-}
-
-.corner.tl {
-  left: 14px;
-  top: 14px;
-  border-width: 3px 0 0 3px;
-  border-top-left-radius: 10px;
-}
-
-.corner.tr {
-  right: 14px;
-  top: 14px;
-  border-width: 3px 3px 0 0;
-  border-top-right-radius: 10px;
-}
-
-.corner.bl {
-  left: 14px;
-  bottom: 14px;
-  border-width: 0 0 3px 3px;
-  border-bottom-left-radius: 10px;
-}
-
-.corner.br {
-  right: 14px;
-  bottom: 14px;
-  border-width: 0 3px 3px 0;
-  border-bottom-right-radius: 10px;
 }
 
 #stage-canvas {
@@ -337,7 +306,7 @@ button.active {
   overflow: hidden;
   border-radius: 24px;
   background: rgba(255,255,255,0.62);
-  border: 3px solid rgba(var(--accent-rgb), 0.16);
+  border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   z-index: 5;
 }
@@ -354,7 +323,7 @@ button.active {
   text-transform: uppercase;
   color: var(--muted);
   background: rgba(255,255,255,0.78);
-  border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
+  border-bottom: 1px solid var(--border);
 }
 
 .camera-card-head span:last-child {
@@ -363,7 +332,7 @@ button.active {
 
 .camera-card-foot {
   border-bottom: 0;
-  border-top: 2px solid rgba(var(--accent-rgb), 0.16);
+  border-top: 1px solid var(--border);
 }
 
 #camera-canvas {
@@ -382,7 +351,7 @@ button.active {
 
 .panel-section {
   padding: 12px;
-  border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
+  border-bottom: 1px solid var(--border);
 }
 
 .panel-header {
@@ -391,7 +360,7 @@ button.active {
   gap: 8px;
   margin-bottom: 10px;
   font-size: 10px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
@@ -407,18 +376,13 @@ button.active {
   min-height: 98px;
   padding: 10px;
   position: relative;
-  border: 3px solid rgba(var(--accent-rgb), 0.16);
+  border: 1px solid var(--border);
   border-radius: 22px;
   background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%);
   color: var(--ink);
   text-align: left;
   box-shadow: var(--card-shadow-soft);
 }
-
-.avatar-card:nth-child(1) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
-.avatar-card:nth-child(2) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
-.avatar-card:nth-child(3) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
-.avatar-card:nth-child(4) { background: linear-gradient(180deg, var(--white) 0%, var(--tint-2) 100%); }
 
 .avatar-card:hover {
   transform: translateY(-1px);
@@ -449,7 +413,7 @@ button.active {
   display: inline-block;
   padding: 4px 7px;
   border-radius: 999px;
-  border: 2px solid rgba(var(--accent-rgb), 0.16);
+  border: 1px solid var(--border);
   background: rgba(255,255,255,0.62);
   font-size: 9px;
   font-weight: 800;
@@ -486,7 +450,7 @@ input[type="checkbox"] {
 .coach-title {
   margin-bottom: 8px;
   font-size: 10px;
-  font-weight: 900;
+  font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -499,7 +463,7 @@ input[type="checkbox"] {
   background: rgba(var(--accent-3-rgb), 0.16);
   color: var(--ink-strong);
   font-size: 10px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -559,8 +523,8 @@ option {
   display: grid;
   grid-template-columns: 1fr auto;
   background: rgba(255, 255, 255, 0.78);
-  border-top: 2px solid rgba(var(--accent-rgb), 0.16);
-  box-shadow: 0 -4px 10px rgba(var(--accent-rgb), 0.04);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 10px rgba(17, 18, 27, 0.04);
   font-size: 11px;
   color: var(--muted);
 }
@@ -597,7 +561,7 @@ option {
   gap: 8px;
   border-radius: 24px;
   background: rgba(255,255,255,0.78);
-  border: 3px solid rgba(var(--accent-rgb), 0.16);
+  border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   font-size: 11px;
   color: var(--ink);
@@ -697,7 +661,7 @@ option {
     height: 58vh;
     min-height: 340px;
     border-right: 0;
-    border-bottom: 2px solid rgba(var(--accent-rgb), 0.16);
+    border-bottom: 1px solid var(--border);
   }
 
   #camera-card {
@@ -802,14 +766,14 @@ option {
 
   <div class="telemetry">
     <span>● local</span>
-    <span>0 external requests since load</span>
+    <span>0 external requests</span>
   </div>
 
   <div id="controls" class="controls">
     <button id="record-btn">● rec 15s</button>
-    <button id="info-btn">ⓘ</button>
-    <button id="theme-btn">🎨 cobalt</button>
-    <button id="panel-toggle">⚙</button>
+    <button id="info-btn">about</button>
+    <button id="theme-btn">theme · cobalt</button>
+    <button id="panel-toggle">debug</button>
     <button id="avatar-btn">avatar: robot</button>
     <button id="video-file-btn">load video</button>
   </div>
@@ -819,10 +783,6 @@ option {
   <section id="stage-area">
     <div class="stage-frame">
       <div class="stage-label">stage · <strong id="stage-avatar-label">robot</strong> · character mode</div>
-      <div class="corner tl"></div>
-      <div class="corner tr"></div>
-      <div class="corner bl"></div>
-      <div class="corner br"></div>
       <canvas id="stage-canvas"></canvas>
 
       <aside id="camera-card">
@@ -1095,7 +1055,7 @@ function applyTheme(t, label) {
     "--ink": t.ink, "--ink-strong": t.inkStrong, "--muted": t.muted
   };
   for (const k in set) s.setProperty(k, set[k]);
-  if (label) document.getElementById("theme-btn").textContent = "🎨 " + label;
+  if (label) document.getElementById("theme-btn").textContent = "theme · " + label;
   drawCamera();
 }
 
@@ -1132,8 +1092,9 @@ function drawStage(now) {
   const ac = a => "rgba(" + T.accentRgb + ", " + a + ")";
 
   const cx = w / 2;
-  const base = h * 0.78;        // model origin (torso/head reference)
-  const floorY = base + 60;     // turntable plane, level with the feet
+  const FIG = 1.5;                  // hero scale — the model is the subject, not chrome
+  const base = h * 0.72;           // model origin (torso/head reference)
+  const floorY = base + 60 * FIG;  // turntable plane, level with the feet
 
   // ---- White stage with a luminous rectangular pad under the model ----
   const t = (now || 0) * 0.001;
@@ -1230,23 +1191,30 @@ function drawStage(now) {
 
   // soft contact shadow grounding the model
   stageCtx.save();
-  const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, frontHalf * 0.5);
-  contact.addColorStop(0, ac(0.16));
-  contact.addColorStop(1, ac(0));
+  const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, frontHalf * 0.55);
+  contact.addColorStop(0, "rgba(20, 22, 35, 0.22)");
+  contact.addColorStop(1, "rgba(20, 22, 35, 0)");
   stageCtx.fillStyle = contact;
   stageCtx.beginPath();
-  stageCtx.ellipse(cx, floorY, frontHalf * 0.5, frontHalf * 0.17, 0, 0, Math.PI * 2);
+  stageCtx.ellipse(cx, floorY, frontHalf * 0.55, frontHalf * 0.15, 0, 0, Math.PI * 2);
   stageCtx.fill();
   stageCtx.restore();
 
-  // ---- Model placeholder (stands on the podium) ----
+  // ---- Model placeholder (the hero — stands grounded on the pad) ----
   stageCtx.save();
   stageCtx.translate(cx, base);
+  stageCtx.scale(FIG, FIG);
 
-  stageCtx.fillStyle = T.tint1;
+  // Gradient fill gives the model material/presence so it reads as the
+  // subject, not just another outlined UI control.
+  const figGrad = stageCtx.createLinearGradient(0, -281, 0, 60);
+  figGrad.addColorStop(0, T.white);
+  figGrad.addColorStop(1, T.tint1);
+
+  stageCtx.fillStyle = figGrad;
   stageCtx.strokeStyle = T.accent;
   stageCtx.lineWidth = 2;
-  stageCtx.shadowColor = ac(0.18);
+  stageCtx.shadowColor = "rgba(20, 22, 35, 0.16)";
   stageCtx.shadowBlur = 12;
   stageCtx.shadowOffsetY = 8;
 
@@ -1266,13 +1234,13 @@ function drawStage(now) {
   stageCtx.fillStyle = T.white;
   stageCtx.fill();
 
-  stageCtx.fillStyle = T.tint1;
+  stageCtx.fillStyle = figGrad;
   rect(-44, -195, 88, 105);
 
   stageCtx.fillStyle = T.tintB;
   rect(-13, -168, 26, 34);
 
-  stageCtx.fillStyle = T.tint1;
+  stageCtx.fillStyle = figGrad;
   stageCtx.save();
   stageCtx.translate(-45, -180);
   stageCtx.rotate(0.08);
