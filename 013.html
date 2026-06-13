@@ -45,10 +45,85 @@
   /* Neutral hairline borders for surfaces; the accent is reserved for the buttons. */
   --border: rgba(17, 18, 27, 0.10);
   --border-strong: rgba(17, 18, 27, 0.14);
+
+  /* Frosted surface fills + the top page glow — retinted wholesale in dark mode. */
+  --glass-1: var(--glass-1);  /* topbar / status / chrome */
+  --glass-2: rgba(255, 255, 255, 0.62);  /* softer panels / chips    */
+  --top-glow: rgba(255, 255, 255, 0.55);
+
   --radius-sm: 14px;
   --radius-md: 22px;
   --radius-lg: 30px;
   --focus: 0 0 0 3px rgba(var(--accent-2-rgb), 0.28);
+}
+
+/* ---- Dark mode ----
+   Accent-derived surfaces (page/white/tint/ink) are recomputed in JS (toDark);
+   here we retint only the static chrome that isn't driven by the theme object. */
+html[data-mode="dark"] {
+  color-scheme: dark;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --glass-1: rgba(34, 37, 52, 0.74);
+  --glass-2: rgba(34, 37, 52, 0.50);
+  --top-glow: rgba(255, 255, 255, 0.05);
+}
+
+html[data-mode="dark"] .stage-frame {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.05), var(--card-shadow);
+}
+
+html[data-mode="dark"] .stage-frame::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+}
+
+/* ---- Glossy mode (cosmetic toggle) ----
+   Lays a top-edge sheen over buttons and cards, deepens the shadows, and gives
+   the stage glass a wetter look — everything reads more reflective/lacquered. */
+html[data-gloss="on"] {
+  --card-shadow: 0 20px 44px rgba(17, 18, 27, 0.22);
+  --card-shadow-soft: 0 12px 26px rgba(17, 18, 27, 0.16);
+}
+
+/* Only plain buttons need positioning/clipping for the sheen; the avatar and
+   camera cards are already positioned + overflow:hidden, so don't touch their
+   position (the camera card is absolutely placed). */
+html[data-gloss="on"] button {
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--button-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+html[data-gloss="on"] .avatar-card {
+  overflow: hidden;
+}
+
+html[data-gloss="on"] button::before,
+html[data-gloss="on"] .avatar-card::before,
+html[data-gloss="on"] #camera-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 48%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  z-index: 0;
+}
+
+html[data-gloss="on"] .avatar-card > *,
+html[data-gloss="on"] #camera-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-gloss="on"] .stage-frame {
+  backdrop-filter: blur(14px) saturate(1.6) brightness(1.04);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6) brightness(1.04);
 }
 
 *,
@@ -76,6 +151,9 @@ body {
 body {
   display: grid;
   grid-template-rows: auto 1fr auto;
+  /* Cap the column at the viewport so a crowded topbar can never widen the page
+     and clip the workspace/panel; rows clip their own overflow instead. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 body::before {
@@ -84,7 +162,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.55), transparent 34%);
+    radial-gradient(circle at 50% 0%, var(--top-glow), transparent 34%);
   opacity: 0.6;
   z-index: -1;
 }
@@ -140,7 +218,7 @@ button.active {
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-1);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 8px 18px rgba(17, 18, 27, 0.05);
 }
@@ -166,7 +244,7 @@ button.active {
   font-size: 10px;
   font-weight: 700;
   color: var(--muted);
-  background: rgba(255,255,255,0.62);
+  background: var(--glass-2);
 }
 
 .mode-tabs {
@@ -195,8 +273,16 @@ button.active {
   overflow: hidden;
 }
 
+/* Pin the privacy badge; let the verbose tail ellipsize first when space is tight. */
 .telemetry span:first-child {
   color: var(--accent-2);
+  flex: 0 0 auto;
+}
+
+.telemetry span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .controls {
@@ -225,9 +311,13 @@ button.active {
   min-width: 0;
   min-height: 0;
   padding: 0;
+  /* Studio backdrop: a soft pool of light where the model stands, falling off
+     into a calm vertical wash — reads like a seamless photo sweep / cyclorama
+     rather than a flat banded gradient. */
   background:
-    linear-gradient(180deg, var(--tint-2) 0%, var(--page-1) 70%),
-    var(--bg-cream);
+    radial-gradient(70% 50% at 50% 82%, var(--white) 0%, transparent 60%),
+    radial-gradient(120% 80% at 50% 0%, var(--tint-2) 0%, transparent 55%),
+    linear-gradient(180deg, var(--page-2) 0%, var(--page-1) 100%);
   border-right: 1px solid var(--border);
 }
 
@@ -277,7 +367,7 @@ button.active {
   z-index: 4;
   padding: 7px 11px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.78);
+  background: var(--glass-1);
   border: 1px solid var(--border);
   color: var(--muted);
   font-size: 11px;
@@ -305,7 +395,7 @@ button.active {
   width: 300px;
   overflow: hidden;
   border-radius: 24px;
-  background: rgba(255,255,255,0.62);
+  background: var(--glass-2);
   border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   z-index: 5;
@@ -322,7 +412,7 @@ button.active {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  background: rgba(255,255,255,0.78);
+  background: var(--glass-1);
   border-bottom: 1px solid var(--border);
 }
 
@@ -346,7 +436,7 @@ button.active {
   display: grid;
   grid-template-rows: auto auto auto 1fr auto;
   min-height: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.62) 0%, var(--tint-2) 100%);
+  background: linear-gradient(180deg, var(--glass-2) 0%, var(--tint-2) 100%);
 }
 
 .panel-section {
@@ -414,7 +504,7 @@ button.active {
   padding: 4px 7px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(255,255,255,0.62);
+  background: var(--glass-2);
   font-size: 9px;
   font-weight: 800;
   color: var(--muted);
@@ -516,13 +606,13 @@ option {
   font-size: 11px;
   line-height: 1.4;
   color: var(--muted);
-  background: rgba(255,255,255,0.62);
+  background: var(--glass-2);
 }
 
 #statusbar {
   display: grid;
   grid-template-columns: 1fr auto;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--glass-1);
   border-top: 1px solid var(--border);
   box-shadow: 0 -4px 10px rgba(17, 18, 27, 0.04);
   font-size: 11px;
@@ -560,7 +650,7 @@ option {
   flex-direction: column;
   gap: 8px;
   border-radius: 24px;
-  background: rgba(255,255,255,0.78);
+  background: var(--glass-1);
   border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   font-size: 11px;
@@ -773,6 +863,8 @@ option {
     <button id="record-btn">● rec 15s</button>
     <button id="info-btn">about</button>
     <button id="theme-btn">theme · cobalt</button>
+    <button id="dark-btn" aria-pressed="false">dark: off</button>
+    <button id="gloss-btn" aria-pressed="false">gloss: off</button>
     <button id="panel-toggle">debug</button>
     <button id="avatar-btn">avatar: robot</button>
     <button id="video-file-btn">load video</button>
@@ -956,8 +1048,58 @@ function theme(rgb, rgb2, rgb3, over) {
     stageBg:     "#ffffff",
     ink:         "#111111",
     inkStrong:   "#111111",
-    muted:       "rgba(0, 0, 0, 0.5)"
+    muted:       "rgba(0, 0, 0, 0.5)",
+    // raw hues + canvas shadows, so the dark variant can be derived later
+    accentArr:   rgb,
+    accent2Arr:  rgb2,
+    accent3Arr:  rgb3,
+    glow:        1,                        // stage-animation intensity (lifted in dark)
+    contact:     "rgba(20, 22, 35, 0.22)",  // model contact pool on the floor
+    figShadow:   "rgba(20, 22, 35, 0.16)"   // model drop shadow
   }, over);
+}
+
+// Perceived luminance, 0..255.
+const lum = (c) => 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+
+// Lift an accent that's too dark to read on a dark surface (e.g. the black
+// palette) toward white. Bright accents pass through unchanged.
+function liftForDark(c) {
+  const L = lum(c);
+  return L < 90 ? mix(c, WHITE, 0.78 * (1 - L / 90)) : c;
+}
+
+// Derive a dark variant from a built (light) theme: surfaces become near-black
+// tinted toward the (legibility-lifted) accent, text flips, accents stay visible.
+function toDark(t) {
+  const D = [16, 17, 24];                 // base near-black
+  const a  = liftForDark(t.accentArr);
+  const a2 = liftForDark(t.accent2Arr);
+  const a3 = liftForDark(t.accent3Arr);
+  const s = (k) => toHex(mix(D, a, k));    // tint toward the lifted accent so
+                                           // surfaces always get LIGHTER with k
+  return Object.assign({}, t, {
+    accentRgb:   toRgb(a),
+    accentDark:  toRgb(mix(a, BLACK, 0.32)),
+    accent:      toHex(a),
+    accentLight: toHex(mix(a, WHITE, 0.30)),
+    accent2Rgb:  toRgb(a2), accent2: toHex(a2), accent2Light: toHex(mix(a2, WHITE, 0.30)),
+    accent3Rgb:  toRgb(a3), accent3: toHex(a3),
+    page1:   s(0.05),
+    page2:   s(0.10),
+    white:   s(0.14),
+    stageBg: s(0.06),
+    tint1:   s(0.24),
+    tint2:   s(0.12),
+    tint3:   s(0.20),
+    tintB:   toHex(mix(D, a2, 0.34)),
+    ink:       "#f3f5fb",
+    inkStrong: "#ffffff",
+    muted:   "rgba(255, 255, 255, 0.55)",
+    glow:      2.6,
+    contact:   "rgba(0, 0, 0, 0.55)",
+    figShadow: "rgba(0, 0, 0, 0.45)"
+  });
 }
 
 // Mono helpers (one hue): the editorial neutral and the tinted-paper palettes.
@@ -1063,7 +1205,9 @@ const state = {
   avatar: "robot",
   recording: false,
   videoMode: false,
-  mirror: true
+  mirror: true,
+  dark: false,
+  gloss: false
 };
 
 const stage = document.getElementById("stage-canvas");
@@ -1096,107 +1240,78 @@ function drawStage(now) {
   const base = h * 0.72;           // model origin (torso/head reference)
   const floorY = base + 60 * FIG;  // turntable plane, level with the feet
 
-  // ---- White stage with a luminous rectangular pad under the model ----
+  // ---- Luminous elliptical turntable under the model ----
+  // The floor stays a transparent glass pane (the frame's frosted glass shows
+  // through); on top we lay a soft disc of light with slow ripple rings. An
+  // ellipse (a circle in perspective) reads as a turntable/podium — calmer and
+  // more elegant than the old square pad. Intensity scales with T.glow so the
+  // animation reads on both light and dark surfaces.
   const t = (now || 0) * 0.001;
+  const G = T.glow;
+  const padR = Math.min(w * 0.30, 300);   // turntable radius (across)
+  const padRy = padR * 0.30;              // flattened for perspective
+  const breathe = 0.5 + 0.5 * Math.sin(t * 0.5);   // slow 0..1
 
-  // Floor is always a transparent frosted-glass pane — never paint a solid
-  // backdrop. The stage frame's glass shows through; the pad below adds a
-  // faint glassy sheen with an extremely subtle grid + pulse.
-
-  // rectangular pad lying flat on the floor (perspective quad)
-  const frontHalf = Math.min(w * 0.30, 290);
-  const backHalf = frontHalf * 0.64;       // narrower at the back -> perspective
-  const yFront = floorY + 56;
-  const yBack = floorY - 70;
-  const FL = [cx - frontHalf, yFront];
-  const FR = [cx + frontHalf, yFront];
-  const BR = [cx + backHalf, yBack];
-  const BL = [cx - backHalf, yBack];
-  const C = [cx, (yFront + yBack) / 2];     // pad center
-  const lerp = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
-  const quad = (ctx, s) => {               // rectangle scaled s from the center
-    const a = lerp(C, FL, s), b = lerp(C, FR, s), c = lerp(C, BR, s), d = lerp(C, BL, s);
-    ctx.beginPath();
-    ctx.moveTo(a[0], a[1]);
-    ctx.lineTo(b[0], b[1]);
-    ctx.lineTo(c[0], c[1]);
-    ctx.lineTo(d[0], d[1]);
-    ctx.closePath();
+  const disc = (rx, ry) => {
+    stageCtx.beginPath();
+    stageCtx.ellipse(cx, floorY, rx, ry, 0, 0, Math.PI * 2);
   };
 
-  const breathe = 0.5 + 0.5 * Math.sin(t * 0.5);   // slow 0..1
-  const edge = (p) => 0.16 + 0.84 * Math.sin(Math.PI * p);   // faint toward edges
-
-  // glassy pane + soft bloom resting on the pad (clipped to the rectangle)
+  // glassy pool of light resting on the disc (clipped to the ellipse)
   stageCtx.save();
-  quad(stageCtx, 1);
+  disc(padR, padRy);
   stageCtx.clip();
 
-  // frosted-glass sheen: a faint translucent pane lying on the floor
-  const glass = stageCtx.createLinearGradient(0, yBack, 0, yFront);
-  glass.addColorStop(0, "rgba(255, 255, 255, 0.04)");
-  glass.addColorStop(1, "rgba(255, 255, 255, 0.13)");
-  stageCtx.fillStyle = glass;
+  const sheen = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, padR);
+  sheen.addColorStop(0, "rgba(255, 255, 255, " + (0.10 * G).toFixed(3) + ")");
+  sheen.addColorStop(1, "rgba(255, 255, 255, 0)");
+  stageCtx.fillStyle = sheen;
   stageCtx.fillRect(0, 0, w, h);
 
-  const bloom = stageCtx.createRadialGradient(C[0], C[1], 2, C[0], C[1], frontHalf);
-  bloom.addColorStop(0, ac((0.05 + 0.02 * breathe).toFixed(3)));
-  bloom.addColorStop(0.5, ac(0.02));
+  const bloom = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, padR);
+  bloom.addColorStop(0, ac(((0.05 + 0.03 * breathe) * G).toFixed(3)));
+  bloom.addColorStop(0.55, ac((0.02 * G).toFixed(3)));
   bloom.addColorStop(1, ac(0));
   stageCtx.fillStyle = bloom;
   stageCtx.fillRect(0, 0, w, h);
 
-  // extremely subtle grid lines inside the pad, fading toward the edges
+  // a couple of faint static rings give the disc some texture
   stageCtx.lineWidth = 1;
-  const nx = 7, ny = 7;
-  for (let i = 0; i <= nx; i++) {
-    const u = i / nx;
-    const f = lerp(FL, FR, u), b = lerp(BL, BR, u);
-    stageCtx.strokeStyle = ac((0.024 * edge(u)).toFixed(3));
-    stageCtx.beginPath();
-    stageCtx.moveTo(f[0], f[1]);
-    stageCtx.lineTo(b[0], b[1]);
-    stageCtx.stroke();
-  }
-  for (let j = 0; j <= ny; j++) {
-    const v = j / ny;
-    const l = lerp(FL, BL, v), r = lerp(FR, BR, v);
-    stageCtx.strokeStyle = ac((0.024 * edge(v)).toFixed(3));
-    stageCtx.beginPath();
-    stageCtx.moveTo(l[0], l[1]);
-    stageCtx.lineTo(r[0], r[1]);
+  for (let r = 0.34; r < 1; r += 0.33) {
+    stageCtx.strokeStyle = ac((0.03 * G).toFixed(3));
+    disc(padR * r, padRy * r);
     stageCtx.stroke();
   }
   stageCtx.restore();
 
-  // extremely subtle pulse: concentric rectangles slowly expanding, fading in/out
+  // ripple rings expanding outward from the centre, fading in and out
   const period = 5.5;
-  for (let p = 0; p < 2; p++) {
-    const phase = ((t / period) + p * 0.5) % 1;   // 0 (center) -> 1 (edge)
+  for (let p = 0; p < 3; p++) {
+    const phase = ((t / period) + p / 3) % 1;     // 0 (centre) -> 1 (rim)
     const env = Math.sin(Math.PI * phase);        // soft fade at both ends
-    stageCtx.strokeStyle = ac((0.08 * env).toFixed(3));
+    stageCtx.strokeStyle = ac((0.10 * env * G).toFixed(3));
     stageCtx.lineWidth = 1.5;
-    stageCtx.shadowColor = ac(0.25);
-    stageCtx.shadowBlur = 10 * env;
-    quad(stageCtx, phase);
+    stageCtx.shadowColor = ac((0.3 * G).toFixed(3));
+    stageCtx.shadowBlur = 12 * env;
+    disc(padR * phase, padRy * phase);
     stageCtx.stroke();
   }
   stageCtx.shadowBlur = 0;
 
-  // faint pad outline
-  stageCtx.strokeStyle = ac(0.06);
-  stageCtx.lineWidth = 1;
-  quad(stageCtx, 1);
+  // turntable rim — a soft breathing outline
+  stageCtx.strokeStyle = ac(((0.10 + 0.06 * breathe) * G).toFixed(3));
+  stageCtx.lineWidth = 1.5;
+  disc(padR, padRy);
   stageCtx.stroke();
 
   // soft contact shadow grounding the model
   stageCtx.save();
-  const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, frontHalf * 0.55);
-  contact.addColorStop(0, "rgba(20, 22, 35, 0.22)");
-  contact.addColorStop(1, "rgba(20, 22, 35, 0)");
+  const contact = stageCtx.createRadialGradient(cx, floorY, 2, cx, floorY, padR * 0.5);
+  contact.addColorStop(0, T.contact);
+  contact.addColorStop(1, "rgba(0, 0, 0, 0)");
   stageCtx.fillStyle = contact;
   stageCtx.beginPath();
-  stageCtx.ellipse(cx, floorY, frontHalf * 0.55, frontHalf * 0.15, 0, 0, Math.PI * 2);
+  stageCtx.ellipse(cx, floorY, padR * 0.5, padRy * 0.78, 0, 0, Math.PI * 2);
   stageCtx.fill();
   stageCtx.restore();
 
@@ -1214,7 +1329,7 @@ function drawStage(now) {
   stageCtx.fillStyle = figGrad;
   stageCtx.strokeStyle = T.accent;
   stageCtx.lineWidth = 2;
-  stageCtx.shadowColor = "rgba(20, 22, 35, 0.16)";
+  stageCtx.shadowColor = T.figShadow;
   stageCtx.shadowBlur = 12;
   stageCtx.shadowOffsetY = 8;
 
@@ -1378,16 +1493,41 @@ document.querySelectorAll(".panel-slider input").forEach(input => {
 
 window.addEventListener("resize", drawCamera);
 
-// ---- Theme cycling ----
-// The theme button steps to the next palette in the THEMES ring.
+// ---- Theme cycling + dark mode ----
+// The theme button steps through the palette ring; the dark switch flips the
+// surfaces. Both funnel through paintTheme() so they compose cleanly: any
+// palette can be shown light or dark.
 const themeBtn = document.getElementById("theme-btn");
+const darkBtn = document.getElementById("dark-btn");
+
+function paintTheme() {
+  const base = THEMES[themeIdx].theme;
+  applyTheme(state.dark ? toDark(base) : base, THEMES[themeIdx].name);
+}
 
 themeBtn.addEventListener("click", () => {
   themeIdx = (themeIdx + 1) % THEMES.length;
-  applyTheme(THEMES[themeIdx].theme, THEMES[themeIdx].name);
+  paintTheme();
 });
 
-applyTheme(THEMES[0].theme, THEMES[0].name);
+darkBtn.addEventListener("click", () => {
+  state.dark = !state.dark;
+  document.documentElement.setAttribute("data-mode", state.dark ? "dark" : "light");
+  darkBtn.setAttribute("aria-pressed", String(state.dark));
+  darkBtn.textContent = "dark: " + (state.dark ? "on" : "off");
+  paintTheme();
+});
+
+// Glossy mode — adds sheen + deeper shadows to the surfaces. Purely cosmetic.
+const glossBtn = document.getElementById("gloss-btn");
+glossBtn.addEventListener("click", () => {
+  state.gloss = !state.gloss;
+  document.documentElement.setAttribute("data-gloss", state.gloss ? "on" : "off");
+  glossBtn.setAttribute("aria-pressed", String(state.gloss));
+  glossBtn.textContent = "gloss: " + (state.gloss ? "on" : "off");
+});
+
+paintTheme();
 
 function loop(now) {
   drawStage(now);
