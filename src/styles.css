@@ -329,31 +329,31 @@ html[data-stage-bg="space"] .stage-frame::after {
   z-index: 4;
   padding: 9px 15px;
   border-radius: 10px;
-  /* translucent cyan glass — neon-HUD aesthetic over the space backdrop */
-  background: rgba(90, 210, 255, 0.1);
+  /* translucent glass — neon-HUD aesthetic tinted by the live theme accent */
+  background: rgba(var(--accent-2-rgb), 0.12);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(90, 210, 255, 0.2);
-  border-left: 1px solid rgba(90, 210, 255, 0.2);
-  box-shadow: 0 4px 20px rgba(20, 100, 160, 0.25);
-  color: rgba(90, 210, 255, 1);
+  border-top: 1px solid rgba(var(--accent-2-rgb), 0.3);
+  border-left: 1px solid rgba(var(--accent-2-rgb), 0.3);
+  box-shadow: 0 4px 20px rgba(var(--accent-2-rgb), 0.22);
+  color: var(--accent-2-light);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  text-shadow: 0 0 5px rgba(90, 210, 255, 0.5);
+  text-shadow: 0 0 6px rgba(var(--accent-2-rgb), 0.55);
   transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
 }
 
 .stage-label:hover {
-  background: rgba(90, 210, 255, 0.2);
+  background: rgba(var(--accent-2-rgb), 0.22);
   transform: scale(1.02);
-  text-shadow: 0 0 10px rgba(90, 210, 255, 0.8);
+  text-shadow: 0 0 10px rgba(var(--accent-2-rgb), 0.85);
 }
 
 .stage-label strong {
-  color: rgba(190, 242, 255, 1);
-  text-shadow: 0 0 8px rgba(90, 210, 255, 0.85);
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(var(--accent-2-rgb), 0.9);
 }
 
 #stage-fx,
@@ -414,19 +414,19 @@ html[data-stage-bg="space"] .stage-frame::after {
   width: 300px;
   overflow: hidden;
   border-radius: 10px;
-  /* translucent cyan glass — neon-HUD aesthetic over the space backdrop */
-  background: rgba(90, 210, 255, 0.1);
+  /* themed glass chrome, but a NEUTRAL body so no colour casts over the feed */
+  background: rgba(255, 255, 255, 0.05);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(90, 210, 255, 0.2);
-  border-left: 1px solid rgba(90, 210, 255, 0.2);
-  box-shadow: 0 4px 20px rgba(20, 100, 160, 0.25);
+  border-top: 1px solid rgba(var(--accent-2-rgb), 0.3);
+  border-left: 1px solid rgba(var(--accent-2-rgb), 0.3);
+  box-shadow: 0 4px 20px rgba(var(--accent-2-rgb), 0.22);
   transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
   z-index: 5;
 }
 
 #camera-card:hover {
-  background: rgba(90, 210, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
   transform: scale(1.02);
 }
 
@@ -440,29 +440,25 @@ html[data-stage-bg="space"] .stage-frame::after {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(90, 210, 255, 1);
-  background: rgba(90, 210, 255, 0.08);
-  border-bottom: 1px solid rgba(90, 210, 255, 0.2);
-  text-shadow: 0 0 5px rgba(90, 210, 255, 0.5);
+  color: var(--accent-2-light);
+  background: rgba(var(--accent-2-rgb), 0.12);
+  /* no divider lines between the feed and the input-signal / tracking areas */
+  border: 0;
+  text-shadow: 0 0 5px rgba(var(--accent-2-rgb), 0.5);
 }
 
 .camera-card-head span:last-child {
-  color: rgba(190, 242, 255, 1);
-  text-shadow: 0 0 8px rgba(90, 210, 255, 0.85);
-}
-
-.camera-card-foot {
-  border-bottom: 0;
-  border-top: 1px solid rgba(90, 210, 255, 0.2);
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(var(--accent-2-rgb), 0.9);
 }
 
 #camera-canvas {
   display: block;
   width: 100%;
   height: 170px;
-  /* translucent so the space backdrop reads faintly through the feed and the
-     VRM stays the focus */
-  opacity: 0.72;
+  /* the feed's own transparency is painted into the canvas (see drawCamera),
+     so the layer itself stays full-strength and the scene behind shows through */
+  opacity: 1;
   background: transparent;
 }
 

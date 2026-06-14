@@ -117,6 +117,34 @@ export function drawCamera(): void {
   const h = camera.clientHeight;
 
   cameraCtx.clearRect(0, 0, w, h);
+
+  // Stand-in webcam frame: drawn cover-fit so the card's translucency can be
+  // judged against a real image. Falls back to the stylised figure below until
+  // the PNG has loaded.
+  if (camImg.complete && camImg.naturalWidth > 0) {
+    const ir = camImg.naturalWidth / camImg.naturalHeight;
+    const cr = w / h;
+    let dw = w;
+    let dh = h;
+    let dx = 0;
+    let dy = 0;
+    if (ir > cr) {
+      dh = h;
+      dw = h * ir;
+      dx = (w - dw) / 2;
+    } else {
+      dw = w;
+      dh = w / ir;
+      dy = (h - dh) / 2;
+    }
+    // Draw the "feed" itself at reduced alpha so it behaves like a transparent
+    // overlay — the stage scene behind the card shows through the image.
+    cameraCtx.globalAlpha = 0.45;
+    cameraCtx.drawImage(camImg, dx, dy, dw, dh);
+    cameraCtx.globalAlpha = 1;
+    return;
+  }
+
   const ac = (a: number) => "rgba(" + T.accentRgb + ", " + a + ")";
   // translucent cool feed — the card glass + space behind read through it
   const camBg = cameraCtx.createLinearGradient(0, 0, 0, h);

@@ -26,10 +26,17 @@
   <div id="controls" class="controls">
     <button id="record-btn">● rec 15s</button>
     <button id="info-btn">about</button>
-    <button id="theme-btn">theme · cobalt</button>
-    <button id="dark-btn" aria-pressed="false">dark: off</button>
-    <button id="stage-bg-btn">bg: studio</button>
-    <button id="floor-toggle-btn" aria-pressed="false">floor: on</button>
+
+    <div class="exp-menu">
+      <button id="exp-toggle" aria-expanded="false" aria-controls="exp-panel">display ▾</button>
+      <div id="exp-panel" class="exp-panel" role="group" aria-label="experimental display options">
+        <button id="theme-btn">theme · cobalt</button>
+        <button id="dark-btn" aria-pressed="false">dark: off</button>
+        <button id="stage-bg-btn">bg: space</button>
+        <button id="floor-toggle-btn" aria-pressed="true">floor: off</button>
+      </div>
+    </div>
+
     <button id="panel-toggle">debug</button>
     <button id="avatar-btn">avatar: astronaut</button>
     <button id="video-file-btn">load video</button>
