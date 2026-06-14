@@ -465,6 +465,7 @@ html[data-stage-bg="space"] .stage-frame::after {
 #side-panel {
   display: grid;
   grid-template-rows: auto auto auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
   min-height: 0;
   background: linear-gradient(180deg, var(--glass-2) 0%, var(--tint-2) 100%);
 }
