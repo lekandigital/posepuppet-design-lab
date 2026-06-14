@@ -62,6 +62,25 @@ export function initControls(h: ControlHandlers): void {
     h.expression(v);
   });
 
+  // ---- experimental display menu (theme / dark / backdrop / floor) ----
+  const expToggle = $("exp-toggle");
+  const expPanel = $("exp-panel");
+  const setExpOpen = (open: boolean) => {
+    expPanel.classList.toggle("open", open);
+    expToggle.setAttribute("aria-expanded", String(open));
+  };
+  expToggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setExpOpen(!expPanel.classList.contains("open"));
+  });
+  // close when clicking outside the menu or pressing Escape
+  document.addEventListener("click", (event) => {
+    if (!expPanel.contains(event.target as Node)) setExpOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setExpOpen(false);
+  });
+
   // ---- theme / dark / backdrop / floor ----
   $("theme-btn").addEventListener("click", () => h.themeNext());
   $("dark-btn").addEventListener("click", () => h.darkToggle());

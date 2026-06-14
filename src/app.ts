@@ -41,7 +41,22 @@ export function boot(): void {
   root.setAttribute("data-stage-bg", state.stageBg);
   root.setAttribute("data-floor", state.floorOn ? "on" : "off");
 
+  // reflect the initial dark setting (may be on via the OS preference)
+  root.setAttribute("data-mode", state.dark ? "dark" : "light");
+  const darkBtn = $("dark-btn");
+  darkBtn.setAttribute("aria-pressed", String(state.dark));
+  darkBtn.textContent = "dark: " + (state.dark ? "on" : "off");
+
   stage = createStage();
+
+  // reflect the initial state into the 3D stage + control labels
+  stage.setSpaceEnabled(state.stageBg === "space");
+  stage.setFloor(state.floorOn);
+  setAmbientVisible(state.floorOn);
+  $("stage-bg-btn").textContent = "bg: " + state.stageBg;
+  const floorBtn = $("floor-toggle-btn");
+  floorBtn.textContent = "floor: " + (state.floorOn ? "on" : "off");
+  floorBtn.setAttribute("aria-pressed", String(!state.floorOn));
 
   initControls({
     themeNext: () => {

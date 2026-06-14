@@ -18,14 +18,20 @@ export interface AppState {
   theme: Theme;
 }
 
+// Honour the OS/browser colour-scheme preference for the initial dark setting;
+// the dark button still lets the user override it at runtime.
+const prefersDark =
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-color-scheme: dark)").matches === true;
+
 export const state: AppState = {
   avatar: "astronaut",
   recording: false,
   videoMode: false,
   mirror: true,
-  dark: false,
+  dark: prefersDark,
   themeIdx: 0,
-  stageBg: "studio",
-  floorOn: true,
+  stageBg: "space",
+  floorOn: false,
   theme: THEMES[0].theme,
 };
