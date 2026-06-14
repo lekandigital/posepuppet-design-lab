@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>PosePuppet Playful Toy Studio UI Mockup</title>
+</head>
+<body data-testid="posepuppet-app">
+<header id="topbar">
+  <div class="brand">
+    <span class="brand-name">PosePuppet</span>
+    <span class="small-key">⌘K</span>
+  </div>
+
+  <nav class="mode-tabs" aria-label="mode">
+    <button class="active">Character</button>
+    <button>Hand-only</button>
+    <button>Setup</button>
+  </nav>
+
+  <div class="telemetry">
+    <span>● local</span>
+    <span>0 external requests</span>
+  </div>
+
+  <div id="controls" class="controls">
+    <button id="record-btn">● rec 15s</button>
+    <button id="info-btn">about</button>
+    <button id="theme-btn">theme · cobalt</button>
+    <button id="dark-btn" aria-pressed="false">dark: off</button>
+    <button id="stage-bg-btn">bg: studio</button>
+    <button id="floor-toggle-btn" aria-pressed="false">floor: on</button>
+    <button id="panel-toggle">debug</button>
+    <button id="avatar-btn">avatar: astronaut</button>
+    <button id="video-file-btn">load video</button>
+  </div>
+</header>
+
+<main id="workspace">
+  <section id="stage-area">
+    <div class="stage-frame">
+      <div class="stage-label">stage · <strong id="stage-avatar-label">astronaut</strong> · character mode</div>
+      <!-- 2D ambient light-pool / ripple rings, painted behind the live 3D layer -->
+      <canvas id="stage-fx"></canvas>
+      <!-- WebGL: real VRM + reflective frosted-glass floor (transparent over the CSS glass) -->
+      <canvas id="stage-canvas"></canvas>
+      <div id="stage-loading"><span class="spinner"></span> loading avatar…</div>
+
+      <aside id="camera-card">
+        <div class="camera-card-head">
+          <span>input signal</span>
+          <span id="camera-live-label">● live</span>
+        </div>
+        <canvas id="camera-canvas"></canvas>
+        <div class="camera-card-foot">
+          <span>tracking</span>
+          <span>cam 1280×720</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <aside id="side-panel">
+    <section class="panel-section">
+      <div class="panel-header">
+        <span>avatars</span>
+        <span>03</span>
+      </div>
+
+      <div class="avatar-grid">
+        <button class="avatar-card" data-avatar="robot">
+          <div class="avatar-icon">■</div>
+          <div class="avatar-name">robot</div>
+          <div class="avatar-note">procedural rig</div>
+        </button>
+
+        <button class="avatar-card active" data-avatar="astronaut">
+          <div class="avatar-icon">▲</div>
+          <div class="avatar-name">astronaut</div>
+          <div class="avatar-note">fingers not supported</div>
+        </button>
+
+        <button class="avatar-card" data-avatar="woody">
+          <div class="avatar-icon">◆</div>
+          <div class="avatar-name">woody</div>
+          <div class="avatar-note">experimental · local</div>
+        </button>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <div class="panel-header">
+        <span>expression</span>
+        <span id="expression-value">1.0</span>
+      </div>
+      <div class="slider-row">
+        <input id="expression-slider" type="range" min="0" max="1" step="0.1" value="1">
+        <div class="slider-labels">
+          <span>faithful</span>
+          <span>cartoon</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <div class="coach-title">coach</div>
+      <div class="coach-stage" id="coach-stage">setup</div>
+      <div class="coach-copy" id="coach-copy">
+        Stand back so your shoulders and hips are in frame, then calibrate.
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <div class="panel-header">
+        <span>settings</span>
+        <span>live</span>
+      </div>
+
+      <div class="settings-grid">
+        <div class="setting-row">
+          <span>mirror</span>
+          <input id="setting-mirror" type="checkbox" checked>
+        </div>
+        <div class="setting-row">
+          <span>full body (legs)</span>
+          <input id="full-body-toggle" type="checkbox">
+        </div>
+        <div class="setting-row">
+          <span>smoothing</span>
+          <input id="setting-smoothing" type="checkbox" checked>
+        </div>
+        <div class="setting-row">
+          <span>root motion</span>
+          <input id="setting-root-motion" type="checkbox" checked>
+        </div>
+        <div class="setting-row">
+          <span>model</span>
+          <select id="setting-model">
+            <option selected>full</option>
+            <option>lite</option>
+          </select>
+        </div>
+        <button id="calibrate-btn">calibrate (3-2-1)</button>
+      </div>
+    </section>
+
+    <div class="side-footer">
+      all inference runs in your browser — no frame, landmark, or recording ever leaves this machine
+    </div>
+  </aside>
+</main>
+
+<div id="statusbar">
+  <div class="status-left">
+    <span class="status-strong">cam live</span>
+    <span>·</span>
+    <span class="status-strong" id="pose-status">pose 30</span>
+    <span>·</span>
+    <span>smooth</span>
+    <span>·</span>
+    <span>rig</span>
+    <span>·</span>
+    <span class="status-strong">render 120</span>
+    <span>·</span>
+    <span id="rec-status">rec —</span>
+  </div>
+  <div class="status-right">ready</div>
+</div>
+
+<div id="panel" class="hidden">
+  <strong>Debug settings</strong>
+  <div class="panel-row"><span>minCutoff</span><div class="panel-slider"><input type="range" min="0.1" max="3" step="0.05" value="1.2"><em>1.2</em></div></div>
+  <div class="panel-row"><span>beta</span><div class="panel-slider"><input type="range" min="0" max="30" step="0.5" value="8"><em>8</em></div></div>
+  <div class="panel-row"><span>slerp rate</span><div class="panel-slider"><input type="range" min="5" max="40" step="1" value="28"><em>28</em></div></div>
+  <div class="panel-row"><span>relax sec</span><div class="panel-slider"><input type="range" min="0.2" max="2" step="0.1" value="0.7"><em>0.7</em></div></div>
+  <div class="panel-row"><span>wrist gain</span><div class="panel-slider"><input type="range" min="0.5" max="2" step="0.05" value="1.25"><em>1.25</em></div></div>
+  <div class="panel-row"><span>offset bone</span><select><option>chest</option><option>neck</option><option>head</option><option>leftHand</option><option>rightHand</option></select></div>
+  <div class="panel-row"><button>clear calib</button><button>reset defaults</button></div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
