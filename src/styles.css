@@ -893,5 +893,48 @@ html[data-stage-bg="tinted"] .stage-frame {
   }
 }
 
-/* ---- Theme picker ---- */
+/* ---- Experimental Display Menu ---- */
+.exp-menu {
+  position: relative;
+  display: inline-block;
+}
+
+#exp-toggle[aria-expanded="true"] {
+  background: linear-gradient(180deg, var(--accent-2-light) 0%, var(--accent-2) 100%);
+  color: var(--white);
+  border-color: rgba(var(--accent-2-rgb), 0.40);
+  box-shadow: 0 4px 0 rgba(var(--accent-2-rgb), 0.55), 0 12px 18px rgba(var(--accent-2-rgb), 0.22);
+}
+
+.exp-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 160px;
+  padding: 12px;
+  background: var(--glass-1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 150ms ease, transform 150ms ease;
+  z-index: 40;
+}
+
+.exp-panel.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.exp-panel button {
+  width: 100%;
+  text-align: left;
+}
+
 #theme-btn { font-weight: 800; }
